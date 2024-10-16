@@ -5,11 +5,9 @@
  *      Author: pomelo925
  */
 
-#ifndef MISSION_HPP_
-#define MISSION_HPP_
+#pragma once
 
+namespace MISSION{
+	void loop();
+}
 
-
-
-
-#endif /* MISSION_HPP_ */

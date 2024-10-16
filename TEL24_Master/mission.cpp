@@ -7,8 +7,4 @@
 
 #include <mission.hpp>
 
-void MISSION::loop(){
-	while(1){
 
-	}
-}

@@ -5,11 +5,7 @@
  *      Author: pomelo925
  */
 
-#ifndef MOTOR_HPP_
-#define MOTOR_HPP_
+#pragma once
 
 #include <motor.hpp>
 
-
-
-#endif /* MOTOR_HPP_ */
