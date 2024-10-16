@@ -13,7 +13,7 @@ void main_function(void){
 
 	while(1){
 		/** REMOTE MODE **/
-		// if(MANUAL::MODE) MANUAL::loop();
+		// if(REMOTE::MODE) REMOTE::loop();
 
 		/** ROS MODE : STM32 Will be controlled by ROS **/
 		// else ROS1::spinCycle();
