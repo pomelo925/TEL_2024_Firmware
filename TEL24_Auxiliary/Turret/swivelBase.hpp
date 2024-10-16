@@ -5,11 +5,4 @@
  *      Author: pomelo925
  */
 
-#ifndef SWIVELBASE_HPP_
-#define SWIVELBASE_HPP_
-
-
-
-
-
-#endif /* SWIVELBASE_HPP_ */
+#pragma once

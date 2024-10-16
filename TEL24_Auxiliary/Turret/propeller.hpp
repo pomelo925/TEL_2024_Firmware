@@ -5,11 +5,5 @@
  *      Author: pomelo925
  */
 
-#ifndef PROPELLER_HPP_
-#define PROPELLER_HPP_
+#pragma once
 
-
-
-
-
-#endif /* PROPELLER_HPP_ */

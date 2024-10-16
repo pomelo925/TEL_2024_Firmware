@@ -5,11 +5,5 @@
  *      Author: pomelo925
  */
 
-#ifndef INTERRUPT_HPP_
-#define INTERRUPT_HPP_
+#pragma once
 
-
-
-
-
-#endif /* INTERRUPT_HPP_ */

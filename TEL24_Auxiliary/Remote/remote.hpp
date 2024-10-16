@@ -5,15 +5,10 @@
  *      Author: pomelo925
  */
 
-#ifndef REMOTE_HPP_
-#define REMOTE_HPP_
+#pragma once
 
 namespace REMOTE{
-	const bool MODE = true;
+	const bool MODE = false;
 
 	void loop();
 }
-
-
-
-#endif /* REMOTE_HPP_ */

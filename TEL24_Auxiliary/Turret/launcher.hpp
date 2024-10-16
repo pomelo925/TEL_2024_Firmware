@@ -5,11 +5,4 @@
  *      Author: pomelo925
  */
 
-#ifndef LAUNCHER_HPP_
-#define LAUNCHER_HPP_
-
-
-
-
-
-#endif /* LAUNCHER_HPP_ */
+#pragma once

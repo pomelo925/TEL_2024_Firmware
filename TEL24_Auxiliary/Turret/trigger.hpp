@@ -5,11 +5,4 @@
  *      Author: pomelo925
  */
 
-#ifndef TRIGGER_HPP_
-#define TRIGGER_HPP_
-
-
-
-
-
-#endif /* TRIGGER_HPP_ */
+#pragma once

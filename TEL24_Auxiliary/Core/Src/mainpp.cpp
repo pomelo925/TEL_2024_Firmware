@@ -7,16 +7,17 @@
 
 
 #include <mainpp.h>
+#include <remote.hpp>
+#include <mission.hpp>
 
 void main_function(void){
-	// DC_MOTOR::init();
 
 	while(1){
 		/** REMOTE MODE **/
-		// if(REMOTE::MODE) REMOTE::loop();
+		 if(REMOTE::MODE) REMOTE::loop();
 
-		/** ROS MODE : STM32 Will be controlled by ROS **/
-		// else ROS1::spinCycle();
+		/** STM32 controlled via default settings or live expressions **/
+		 else MISSION::loop();
 	}
 	return;
 }

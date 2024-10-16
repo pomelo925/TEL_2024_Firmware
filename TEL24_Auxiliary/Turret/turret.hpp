@@ -5,11 +5,4 @@
  *      Author: pomelo925
  */
 
-#ifndef TURRET_HPP_
-#define TURRET_HPP_
-
-
-
-
-
-#endif /* TURRET_HPP_ */
+#pragma once
