@@ -14,7 +14,7 @@ void main_function(void){
 
 	while(1){
 		/** REMOTE MODE **/
-		 if(REMOTE::MODE) REMOTE::loop();
+		 if(Remote.MODE) Remote.loop();
 
 		/** STM32 controlled via default settings or live expressions **/
 		 else MISSION::loop();

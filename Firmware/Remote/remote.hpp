@@ -7,8 +7,33 @@
 
 #pragma once
 
-namespace REMOTE{
+#include <stm32h7xx.h>
+
+extern TIM_HandleTypeDef htim16;
+
+
+class REMOTE{
+public:
 	const bool MODE = false;
 
+	void init();
 	void loop();
-}
+	void DMA_transfer_PPMData();
+
+private:
+	typedef struct {
+	    uint16_t ch1;
+	    uint16_t ch2;
+	    uint16_t ch3;
+	    uint16_t ch4;
+	    uint16_t ch5;
+	    uint16_t ch6;
+	    uint16_t ch7;
+	    uint16_t ch8;
+	} PPM_Data;
+
+	PPM_Data ppmData;
+	uint32_t ppmBuffer[8];
+};
+
+extern REMOTE Remote;
