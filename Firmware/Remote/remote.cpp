@@ -6,6 +6,7 @@
  */
 
 #include <remote.hpp>
+#include <medium.hpp>
 
 REMOTE Remote;
 
@@ -45,9 +46,22 @@ void REMOTE::DMA_transfer_PPMData(){
 
 
 /** 
+ * @brief 將 PPM 資料傳給 Medium 資料。
+ */
+void REMOTE::push_to_medium(){
+    if (ppmBuffer != nullptr) {
+        MEDIUM::Chassis_X = ppmData.ch1;
+        MEDIUM::Chassis_Y = ppmData.ch2;
+        // ...
+    }
+}
+
+
+/**
  * @brief TIM16 硬體中斷處理函數。捕獲數據觸發中斷。
  */
 void TIM16_IRQHandler(){
     HAL_TIM_IRQHandler(&htim16);
     Remote.DMA_transfer_PPMData();
+    Remote.push_to_medium();
 }

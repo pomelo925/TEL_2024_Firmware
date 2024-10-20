@@ -19,6 +19,7 @@ public:
 	void init();
 	void loop();
 	void DMA_transfer_PPMData();
+	void push_to_medium();
 
 private:
 	typedef struct {

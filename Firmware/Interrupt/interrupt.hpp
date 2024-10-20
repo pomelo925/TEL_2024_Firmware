@@ -9,3 +9,6 @@
 
 #include "stm32h7xx_hal.h"
 
+extern TIM_HandleTypeDef htim6;
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);

@@ -7,8 +7,11 @@
 
 #pragma once
 
-namespace MISSION{
+class MISSION{
+public:
 	void loop();
-}
+	
+private:
+};
 
-
+extern MISSION Mission;
