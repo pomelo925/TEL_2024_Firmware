@@ -6,7 +6,8 @@
  */
 
 #include <remote.hpp>
-#include <medium.hpp>
+
+#include "../Global/global.hpp"
 
 REMOTE Remote;
 
@@ -46,12 +47,12 @@ void REMOTE::DMA_transfer_PPMData(){
 
 
 /** 
- * @brief 將 PPM 資料傳給 Medium 資料。
+ * @brief 將 PPM 資料傳給 Global 資料。
  */
-void REMOTE::push_to_medium(){
+void REMOTE::PPMData_transfer_global(){
     if (ppmBuffer != nullptr) {
-        MEDIUM::Chassis_X = ppmData.ch1;
-        MEDIUM::Chassis_Y = ppmData.ch2;
+        // GLOBAL::Chassis_X_Speed = ppmData.ch1;
+        // GLOBAL::Chassis_THETA_Speed = ppmData.ch2;
         // ...
     }
 }
@@ -63,5 +64,5 @@ void REMOTE::push_to_medium(){
 void TIM16_IRQHandler(){
     HAL_TIM_IRQHandler(&htim16);
     Remote.DMA_transfer_PPMData();
-    Remote.push_to_medium();
+    Remote.PPMData_transfer_global();
 }

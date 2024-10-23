@@ -9,19 +9,38 @@
 #include <mainpp.h>
 #include <remote.hpp>
 #include <mission.hpp>
+#include <dc.hpp>
+#include <global.hpp>
+
+const bool REMOTE_ON = false;
+
 
 void main_function(void){
+	/* 初始化 */
+	DC_ChassisL.init();
+	DC_ChassisR.init();
+	DC_SwivelL.init();
+	DC_SwivelR.init();
+	DC_LauncherL1.init();
+	DC_LauncherL2.init();
+	DC_LauncherR1.init();
+	DC_LauncherR2.init();
 
+	Remote.init();
+
+
+	/* 無限迴圈 */
 	while(1){
 		/**
-		 * 實際機構作動的 function 會由布林值 XX_ON 決定其狀態
-		 * Remote.MODE = true 時，XX_ON 會由 Remote 傳輸
-		 * Remote.MODE = false 時，XX_ON 則可從 live expression 調整
-		 * XX_ON 的定義及預設值位於資料夾 /STATE。
+		 * Mission 中會去呼叫使機構作動的 Function
+		 * 這類 Function 參數一律為 GLOBAL 參數集合
+		 * Remote.MODE = true 時，GLOBAL 只由 Remote 遠端傳輸決定
+		 * Remote.MODE = false 時，GLOBAL 則可從 live expression 調整
 		 */
 
-		 if(Remote.MODE) Remote.loop();
-		 else Mission.loop();
+		if(REMOTE_ON) Remote.PPMData_transfer_global();
+		Mission.run(GLOBAL::Mode);
+		
 	}
 	return;
 }

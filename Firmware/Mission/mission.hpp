@@ -7,11 +7,14 @@
 
 #pragma once
 
+#include "stm32h7xx.h"
+
 class MISSION{
 public:
-	void loop();
+	void run(uint16_t Mode);
 	
-private:
+	void mission_1(void);
+	void mission_2(void);
 };
 
 extern MISSION Mission;
