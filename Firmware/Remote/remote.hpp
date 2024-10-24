@@ -7,9 +7,8 @@
 
 #pragma once
 
-#include <stm32h7xx.h>
-
-extern TIM_HandleTypeDef htim16;
+#include "stm32h7xx.h"
+#include "stm32h7xx_hal.h"
 
 
 class REMOTE{

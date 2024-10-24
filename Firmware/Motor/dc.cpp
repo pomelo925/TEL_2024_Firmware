@@ -7,34 +7,35 @@
 
 #include <dc.hpp>
 
-
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim3;
 extern TIM_HandleTypeDef htim4;
 extern TIM_HandleTypeDef htim5;
 extern TIM_HandleTypeDef htim8;
+extern TIM_HandleTypeDef htim15;
 extern TIM_HandleTypeDef htim23;
+extern TIM_HandleTypeDef htim24;
 
 
-DC DC_LauncherL1(&htim23, TIM_CHANNEL_1, GPIOD, GPIO_PIN_0);
-DC DC_LauncherL2(&htim23, TIM_CHANNEL_2, GPIOD, GPIO_PIN_1);
-DC DC_LauncherR1(&htim23, TIM_CHANNEL_3, GPIOD, GPIO_PIN_2);
-DC DC_LauncherR2(&htim23, TIM_CHANNEL_4, GPIOD, GPIO_PIN_3);
+DC DC_LauncherL1(&htim15, TIM_CHANNEL_1, GPIOA, GPIO_PIN_15);
+DC DC_LauncherL2(&htim23, TIM_CHANNEL_2, GPIOC, GPIO_PIN_13);
+DC DC_LauncherR1(&htim8, TIM_CHANNEL_3, GPIOD, GPIO_PIN_2);
+DC DC_LauncherR2(&htim8, TIM_CHANNEL_1, GPIOD, GPIO_PIN_3);
 
-DC DC_ChassisL(&htim8, TIM_CHANNEL_1, GPIOA, GPIO_PIN_14,
-                &htim1, 2.5f, 80.f, 0.f,
+DC DC_ChassisL(&htim8, TIM_CHANNEL_2, GPIOC, GPIO_PIN_10,
+                &htim5, 2.5f, 80.f, 0.f,
                 1024.f, 26.f, 0.001f, false);
                 
-DC DC_ChassisR(&htim8, TIM_CHANNEL_2, GPIOA, GPIO_PIN_15,
+DC DC_ChassisR(&htim8, TIM_CHANNEL_4, GPIOC, GPIO_PIN_11,
                 &htim3, 2.5f, 80.f, 0.f,
                 1024.f, 26.f, 0.001f, false);
 
-DC DC_SwivelL(&htim8, TIM_CHANNEL_3, GPIOC, GPIO_PIN_10,
-                &htim4, 2.5f, 80.f, 0.f,
+DC DC_SwivelL(&htim23, TIM_CHANNEL_1, GPIOD, GPIO_PIN_1,
+                &htim1, 2.5f, 80.f, 0.f,
                 1024.f, 26.f, 0.001f, false);
 
-DC DC_SwivelR(&htim8, TIM_CHANNEL_4, GPIOC, GPIO_PIN_11,
-                &htim5, 2.5f, 80.f, 0.f,
+DC DC_SwivelR(&htim24, TIM_CHANNEL_4, GPIOG, GPIO_PIN_10,
+                &htim4, 2.5f, 80.f, 0.f,
                 1024.f, 26.f, 0.001f, false);
 
 
@@ -117,14 +118,17 @@ void DC::updateCurrentWheelSpeed() {
  */
 void DC::updateTargetPWM(void) {
   this->_error = this->_target_wheel_speed - this->_current_wheel_speed;
-  this->_integral += (this->_error * this->_interval);
 
-// 防止積分飽和
-  if (this->_target_wheel_speed == 0) this->_integral = 0;
-  else {
-    if (this->_integral < -PWM_SCALE / this->_ki) this->_integral = -PWM_SCALE / this->_ki;
-    else if (this->_integral > PWM_SCALE / this->_ki)  this->_integral = PWM_SCALE / this->_ki;
-  }
+  static int count = 0;
+  if (count < 6)  this->_integral = 0.f;
+  else  this->_integral += (this->_error * this->_interval);
+  count ++;
+
+  // 防止積分飽和_error
+  if (this->_integral < -this->PWM_SCALE / this->_ki) this->_integral = -this->PWM_SCALE / this->_ki;
+  else if (this->_integral > this->PWM_SCALE / this->_ki) this->_integral = this->PWM_SCALE / this->_ki;
+  
+
 
   const float derivative = (this->_error - this->_previous_error) / this->_interval;
   this->_previous_error = this->_error;
@@ -138,7 +142,5 @@ void DC::updateTargetPWM(void) {
   
   // 更新方向
   _direction = (this->_target_PWM >= 0);
-  
-  return;
 }
 

@@ -6,8 +6,9 @@
  */
 
 #include <remote.hpp>
+#include <global.hpp>
 
-#include "../Global/global.hpp"
+extern TIM_HandleTypeDef htim17;
 
 REMOTE Remote;
 
@@ -15,7 +16,7 @@ REMOTE Remote;
  * @brief 初始化 DMA 通道。
  */
 void REMOTE::init(){
-	HAL_TIM_IC_Start_DMA(&htim16, TIM_CHANNEL_1, ppmBuffer, 8);
+	HAL_TIM_IC_Start_DMA(&htim17, TIM_CHANNEL_1, ppmBuffer, 8);
 }
 
 
@@ -62,7 +63,7 @@ void REMOTE::PPMData_transfer_global(){
  * @brief TIM16 硬體中斷處理函數。捕獲數據觸發中斷。
  */
 void TIM16_IRQHandler(){
-    HAL_TIM_IRQHandler(&htim16);
+    HAL_TIM_IRQHandler(&htim17);
     Remote.DMA_transfer_PPMData();
     Remote.PPMData_transfer_global();
 }
