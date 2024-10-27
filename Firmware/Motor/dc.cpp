@@ -44,7 +44,7 @@ DC DC_SwivelR(&htim24, TIM_CHANNEL_4, GPIOG, GPIO_PIN_10,
  */
 void DC::init(void){
   /* 啟動 Encoder Timer */
-	HAL_TIM_Encoder_Start(this->getEncTimer(), TIM_CHANNEL_ALL);
+  HAL_TIM_Encoder_Start(this->getEncTimer(), TIM_CHANNEL_ALL);
 
   /* 啟動 PWM 輸出 Timer */
   HAL_TIM_PWM_Start_IT(this->getPwmTimer(), this->getPwmChannel());

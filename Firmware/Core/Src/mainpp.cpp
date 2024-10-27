@@ -12,8 +12,7 @@
 #include <dc.hpp>
 #include <global.hpp>
 
-const bool REMOTE_ON = false;
-
+const bool REMOTE_ON = true;
 
 void main_function(void){
 	/* 初始化 */
@@ -38,7 +37,7 @@ void main_function(void){
 		 * Remote.MODE = false 時，GLOBAL 則可從 live expression 調整
 		 */
 
-		if(REMOTE_ON) Remote.PPMData_transfer_global();
+		if(REMOTE_ON) Remote.ppmValue_to_global();
 		Mission.run(GLOBAL::Mode);
 		
 	}

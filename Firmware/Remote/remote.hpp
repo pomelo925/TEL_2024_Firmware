@@ -9,31 +9,24 @@
 
 #include "stm32h7xx.h"
 #include "stm32h7xx_hal.h"
+#include "stm32h7xx_hal_dma.h"
 
 
 class REMOTE{
 public:
-	const bool MODE = false;
+	int count=0;
 
-	void init();
-	void loop();
-	void DMA_transfer_PPMData();
-	void PPMData_transfer_global();
+	uint32_t ppmRaw[18];
+	uint16_t ppmCnt[9], ppmHigh[8], ppmValue[8]; 
+
+	void init(void);
+	void ppm_raw_to_cnt(void);
+	void ppm_cnt_to_high(void);
+	void ppm_high_to_value(void);
+	void ppmValue_to_global(void);
 
 private:
-	typedef struct {
-	    uint16_t ch1;
-	    uint16_t ch2;
-	    uint16_t ch3;
-	    uint16_t ch4;
-	    uint16_t ch5;
-	    uint16_t ch6;
-	    uint16_t ch7;
-	    uint16_t ch8;
-	} PPM_Data;
-
-	PPM_Data ppmData;
-	uint32_t ppmBuffer[8];
+	uint16_t LOW_INTERVAL = 400;  // unit: us
 };
 
 extern REMOTE Remote;
