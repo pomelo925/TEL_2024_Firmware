@@ -12,7 +12,7 @@
 MISSION Mission;
 
 void MISSION::mission_1(void){
-	Chassis.run(GLOBAL::Chassis_X_Speed, GLOBAL::Chassis_Theta_Speed);
+	Chassis.run(Global.Chassis_X_Speed, Global.Chassis_Theta_Speed);
 	return;
 }
 

@@ -11,8 +11,7 @@
 #include <mission.hpp>
 #include <dc.hpp>
 #include <global.hpp>
-
-const bool REMOTE_ON = true;
+#include <interrupt.hpp>
 
 void main_function(void){
 	/* 初始化 */
@@ -25,6 +24,8 @@ void main_function(void){
 	DC_LauncherR1.init();
 	DC_LauncherR2.init();
 
+	
+	Interrupt.init();
 	Remote.init();
 
 
@@ -37,9 +38,7 @@ void main_function(void){
 		 * Remote.MODE = false 時，GLOBAL 則可從 live expression 調整
 		 */
 
-		if(REMOTE_ON) Remote.ppmValue_to_global();
-		Mission.run(GLOBAL::Mode);
-		
+		Remote.ppmHigh_to_global();
 	}
 	return;
 }

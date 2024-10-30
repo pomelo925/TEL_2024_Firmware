@@ -46,8 +46,8 @@ public:
 
   
   void init(void);
-
-  void open_loop_pwm_output(uint16_t duty, GPIO_PinState set);
+  
+  void open_loop_pwm_output(float duty);
   void close_loop_pwm_output(void);
 
   void set_target_wheel_speed(float speed);
@@ -89,6 +89,8 @@ private:
   float _target_wheel_speed=0.f;   /* Target wheel speed (rps). Given by Chassis. */
   int16_t _current_pulse=0;  /* Current pulse. Given by Interrupt. */
   float _target_PWM=0.f;  /* PWM target output. Fed to Interrupt. */
+
+  float _duty=0.f;
 
   static constexpr float PWM_SCALE = 1000.f;
 };

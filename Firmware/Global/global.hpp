@@ -9,17 +9,25 @@
 
 #include <stm32h7xx.h>
 
-namespace GLOBAL {
-  extern float Chassis_X_Speed;
-  extern float Chassis_Theta_Speed;
+class GLOBAL {
+public:
+  float Chassis_X_Speed = 0.f;
+  float Chassis_Theta_Speed = 0.f;
 
-  extern float Swivel_L_Speed;
-  extern float Swivel_R_Speed;
+  float Swivel_L_Speed = 0.f;
+  float Swivel_R_Speed = 0.f;
 
-  extern float launcher_R1_Speed;
-  extern float launcher_R2_Speed;
-  extern float launcher_L1_Speed;
-  extern float launcher_L2_Speed;
+  float launcher_R1_DUTY = 0.f;
+  float launcher_R2_DUTY = 0.f;
+  float launcher_L1_DUTY = 0.f;
+  float launcher_L2_DUTY = 0.f;
 
-  extern float Mode;
-}
+  uint8_t swa = 0;
+  uint8_t swb = 0;
+  uint8_t swc = 0;
+  uint8_t swd = 0;
+
+  uint8_t mode = 0;
+};
+
+extern GLOBAL Global;

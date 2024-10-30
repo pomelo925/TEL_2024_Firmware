@@ -53,17 +53,21 @@ void DC::init(void){
 }
 
 
+
 /**
  * @brief 直接輸出固定占空比
  * @param 占空比（單位：%）
- * @param 正反
  */
-void DC::open_loop_pwm_output(uint16_t duty, GPIO_PinState set){
+void DC::open_loop_pwm_output(float duty){
+	this->_duty = duty;
+
   // 設置電機旋轉方向
-	HAL_GPIO_WritePin(this->getDirPort(), this->getDirPin(), set);
+	if(duty >= 0) HAL_GPIO_WritePin(this->getDirPort(), this->getDirPin(), GPIO_PIN_SET);
+	else HAL_GPIO_WritePin(this->getDirPort(), this->getDirPin(), GPIO_PIN_RESET);
 
   // PWM 輸出
-	__HAL_TIM_SET_COMPARE(this->getPwmTimer(), this->getPwmChannel(), (duty * PWM_SCALE) / 100);
+	__HAL_TIM_SET_COMPARE(this->getPwmTimer(), this->getPwmChannel(), (abs(duty) * PWM_SCALE) / 100);
+//	__HAL_TIM_SET_COMPARE(this->getPwmTimer(), this->getPwmChannel(), PWM_SCALE);
 
   return;
 }
@@ -76,7 +80,7 @@ void DC::open_loop_pwm_output(uint16_t duty, GPIO_PinState set){
 void DC::close_loop_pwm_output(){
   // 狀態更新
 	DC::updateCurrentWheelSpeed();
-  DC::updateTargetPWM();
+	DC::updateTargetPWM();
 
   // 重置計數器
 	__HAL_TIM_SetCounter(this->getEncTimer(), 0);

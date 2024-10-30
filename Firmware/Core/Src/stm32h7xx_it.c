@@ -57,6 +57,8 @@
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_tim17_ch1;
 extern TIM_HandleTypeDef htim1;
+extern TIM_HandleTypeDef htim8;
+extern TIM_HandleTypeDef htim12;
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart3;
 /* USER CODE BEGIN EV */
@@ -217,16 +219,16 @@ void RCC_IRQHandler(void)
 /**
   * @brief This function handles DMA1 stream0 global interrupt.
   */
-//	 void DMA1_Stream0_IRQHandler(void)
-//	 {
-//	   /* USER CODE BEGIN DMA1_Stream0_IRQn 0 */
-//
-//	   /* USER CODE END DMA1_Stream0_IRQn 0 */
-//	   HAL_DMA_IRQHandler(&hdma_tim17_ch1);
-//	   /* USER CODE BEGIN DMA1_Stream0_IRQn 1 */
-//
-//	   /* USER CODE END DMA1_Stream0_IRQn 1 */
-//	 }
+//void DMA1_Stream0_IRQHandler(void)
+//{
+//  /* USER CODE BEGIN DMA1_Stream0_IRQn 0 */
+////
+//  /* USER CODE END DMA1_Stream0_IRQn 0 */
+//  HAL_DMA_IRQHandler(&hdma_tim17_ch1);
+//  /* USER CODE BEGIN DMA1_Stream0_IRQn 1 */
+////
+//  /* USER CODE END DMA1_Stream0_IRQn 1 */
+//}
 
 /**
   * @brief This function handles TIM1 capture compare interrupt.
@@ -268,6 +270,21 @@ void USART3_IRQHandler(void)
   /* USER CODE BEGIN USART3_IRQn 1 */
 
   /* USER CODE END USART3_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM8 break interrupt and TIM12 global interrupt.
+  */
+void TIM8_BRK_TIM12_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM8_BRK_TIM12_IRQn 0 */
+
+  /* USER CODE END TIM8_BRK_TIM12_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim8);
+  HAL_TIM_IRQHandler(&htim12);
+  /* USER CODE BEGIN TIM8_BRK_TIM12_IRQn 1 */
+
+  /* USER CODE END TIM8_BRK_TIM12_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

@@ -12,3 +12,11 @@
 extern TIM_HandleTypeDef htim6;
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
+
+class INTERRUPT{
+public:
+	void init(void);
+
+};
+
+extern INTERRUPT Interrupt;
