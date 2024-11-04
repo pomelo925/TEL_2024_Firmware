@@ -59,6 +59,7 @@ extern DMA_HandleTypeDef hdma_tim17_ch1;
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim8;
 extern TIM_HandleTypeDef htim12;
+extern TIM_HandleTypeDef htim16;
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart3;
 /* USER CODE BEGIN EV */
@@ -222,11 +223,11 @@ void RCC_IRQHandler(void)
 //void DMA1_Stream0_IRQHandler(void)
 //{
 //  /* USER CODE BEGIN DMA1_Stream0_IRQn 0 */
-////
+//
 //  /* USER CODE END DMA1_Stream0_IRQn 0 */
 //  HAL_DMA_IRQHandler(&hdma_tim17_ch1);
 //  /* USER CODE BEGIN DMA1_Stream0_IRQn 1 */
-////
+//
 //  /* USER CODE END DMA1_Stream0_IRQn 1 */
 //}
 
@@ -285,6 +286,20 @@ void TIM8_BRK_TIM12_IRQHandler(void)
   /* USER CODE BEGIN TIM8_BRK_TIM12_IRQn 1 */
 
   /* USER CODE END TIM8_BRK_TIM12_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM16 global interrupt.
+  */
+void TIM16_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM16_IRQn 0 */
+
+  /* USER CODE END TIM16_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim16);
+  /* USER CODE BEGIN TIM16_IRQn 1 */
+
+  /* USER CODE END TIM16_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

@@ -7,15 +7,18 @@
 
 #include <interrupt.hpp>
 #include <global.hpp>
+#include <stepper.hpp>
 #include <dc.hpp>
 #include <chassis.hpp>
 
 extern TIM_HandleTypeDef htim12;
+extern TIM_HandleTypeDef htim16;
 
 INTERRUPT Interrupt;
 
 void INTERRUPT::init(void){
 	HAL_TIM_Base_Start_IT(&htim12);
+	HAL_TIM_Base_Start_IT(&htim16);
 	return;
 }
 
@@ -29,13 +32,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		DC_SwivelR.close_loop_pwm_output();
 
 		/* STEPPER：填彈 */
-		// 防止積分飽和
-
+		Stepper_R.open_loop_step_moveTo(Global.stepper_pos);
+		Stepper_L.open_loop_step_moveTo(Global.stepper_pos);
 
 		/* SERVO：板機 */
 
 
 		/* SERVO：仰角 */
+		
 		return;
 	}
 

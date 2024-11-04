@@ -6,6 +6,7 @@
  */
 
 #include <remote.hpp>
+#include <chassis.hpp>
 #include <global.hpp>
 #include <turret.hpp>
 
@@ -30,60 +31,101 @@ void REMOTE::global_update(void){
     switch(Global.mode){
         // swa = up, swd = up => 手動底盤模式，CH1~2粗調，CH3~4精調
         case 1:
+            _case2_flag = false;
+
             Global.Chassis_X_Speed = REMOTE::joystick_mapping(this->ppmHigh[0], -1.f, 1.f);
             Global.Chassis_Theta_Speed = REMOTE::joystick_mapping(this->ppmHigh[1], -1.f, 1.f);
             Global.Chassis_X_Speed = REMOTE::joystick_mapping(this->ppmHigh[0], -0.2f, 0.2f);
             Global.Chassis_Theta_Speed = REMOTE::joystick_mapping(this->ppmHigh[1], -0.2f, 0.2f);
             break;
         
-        // swa = up, swd = down => 自動砲台模式，CH1~2左砲，CH3~4右砲
+        // swa = up, swd = down => 自動砲台模式，CH1~2左砲，CH3~4右砲，swb、swc改變就發射        
         case 2:
+            // 先判斷左砲狀態
             switch(REMOTE::joystick_state(_LEFT)){
                 case _LEFT_TOP:
-                    Turret.global_default_mode(_LEFT, 1); break;
+                    Turret.operate_with_default_mode(_LEFT, 1); break;
                 case _RIGHT_TOP:
-                    Turret.global_default_mode(_LEFT, 2); break;
+                    Turret.operate_with_default_mode(_LEFT, 2); break;
                 case _LEFT_MIDDLE:
-                    Turret.global_default_mode(_LEFT, 4); break;
+                    Turret.operate_with_default_mode(_LEFT, 4); break;
                 case _RIGHT_MIDDLE:
-                    Turret.global_default_mode(_LEFT, 5); break;
+                    Turret.operate_with_default_mode(_LEFT, 5); break;
                 case _LEFT_BOTTOM: 
-                    Turret.global_default_mode(_LEFT, 7); break;
+                    Turret.operate_with_default_mode(_LEFT, 7); break;
                 case _RIGHT_BOTTOM:
-                    Turret.global_default_mode(_LEFT, 8); break;
+                    Turret.operate_with_default_mode(_LEFT, 8); break;
                 default:
                     break;
             }
 
+            // 再判斷右砲狀態 
             switch(REMOTE::joystick_state(_RIGHT)){
                 case _LEFT_TOP:
-                    Turret.global_default_mode(_RIGHT, 2); break;
+                    Turret.operate_with_default_mode(_RIGHT, 2); break;
                 case _RIGHT_TOP:
-                    Turret.global_default_mode(_RIGHT, 2); break;
+                    Turret.operate_with_default_mode(_RIGHT, 2); break;
                 case _LEFT_MIDDLE:
-                    Turret.global_default_mode(_RIGHT, 4); break;
+                    Turret.operate_with_default_mode(_RIGHT, 4); break;
                 case _RIGHT_MIDDLE:
-                    Turret.global_default_mode(_RIGHT, 5); break;
+                    Turret.operate_with_default_mode(_RIGHT, 5); break;
                 case _LEFT_BOTTOM: 
-                    Turret.global_default_mode(_RIGHT, 7); break;
+                    Turret.operate_with_default_mode(_RIGHT, 7); break;
                 case _RIGHT_BOTTOM:
-                    Turret.global_default_mode(_RIGHT, 8); break;
+                    Turret.operate_with_default_mode(_RIGHT, 8); break;
                 default:
                     break;
             }
-
+            
+            // 進入此模式後，先更新當前 swb、swc 狀態
+            static uint8_t swb_state_last = 0, swc_state_last = 0;
+            if(!_case2_flag) {
+                swb_state_last = Global.swb;
+                swc_state_last = Global.swc;
+                _case2_flag = true;
+            }
+            // 如果 swb、swc 狀態改變，則發射
+            if(Global.swb != swb_state_last){
+                Turret.shoot(_LEFT);
+                Turret.reload(_LEFT);
+                swb_state_last = Global.swb;
+            }
+            if(Global.swc != swc_state_last){
+                Turret.shoot(_RIGHT);
+                Turret.reload(_RIGHT);
+                swc_state_last = Global.swc;
+            }
+    
             break;
         
-        // swa = down, swd = up => 
+        // swa = down, swd = up => 自動底盤模式，搖桿 swa ~ swd 選模式
         case 3:
+            _case2_flag = false;
+
+            // 開頭：左，結束：左
+            if(Global.swb == _SWITCH_UP && Global.swc == _SWITCH_UP) Chassis.moveTo(20.f, 20.f);
+            // 開頭：左，結束：中
+            if(Global.swb == _SWITCH_UP && Global.swc == _SWITCH_MIDDLE) Chassis.moveTo(20.f, -20.f);
+            // 開頭：左，結束：右
+            if(Global.swb == _SWITCH_UP && Global.swc == _SWITCH_DOWN) Chassis.moveTo(-20.f, 20.f);
+
+            // 開頭：右，結束：左
+            if(Global.swb == _SWITCH_DOWN && Global.swc == _SWITCH_UP) Chassis.moveTo(-20.f, -20.f);
+            // 開頭：右，結束：中
+            if(Global.swb == _SWITCH_DOWN && Global.swc == _SWITCH_MIDDLE) Chassis.moveTo(-20.f, 20.f);
+            // 開頭：右，結束：右
+            if(Global.swb == _SWITCH_DOWN && Global.swc == _SWITCH_DOWN) Chassis.moveTo(20.f, -20.f);
 
             break;
 
         // swa = down, swd = down => 手動砲台模式，微調左右砲位置
         case 4:
+            _case2_flag = false;
+
+            Turret.fine_tune(_LEFT, REMOTE::joystick_mapping(this->ppmHigh[0], -1.f, 1.f), REMOTE::joystick_mapping(this->ppmHigh[1], -1.f, 1.f));
+            Turret.fine_tune(_RIGHT, REMOTE::joystick_mapping(this->ppmHigh[2], -1.f, 1.f), REMOTE::joystick_mapping(this->ppmHigh[3], -1.f, 1.f));
 
             break;
-
 
         default:
             break;
@@ -238,13 +280,21 @@ void REMOTE::ppm_raw_to_cnt(void) {
 void REMOTE::ppm_cnt_to_high(void) {
 	for(int i=0; i<8; i++)
 		this->ppmHigh[i] = this->ppmCnt[i+1] - this->ppmCnt[i];
+
+	// 使遙控器左右搖桿的通道邏輯相同
+	uint16_t temp = ppmHigh[2];
+	ppmHigh[2] = ppmHigh[3];
+	ppmHigh[3] = temp;
+
     return; 
 }
 
 
-
+/**
+ * @brief DMA 中斷處理函式
+ *  記得在 stm32h7xx_it.c 註解函數，否則會有 First Defined Here 的錯誤。
+ */
 extern "C" void DMA1_Stream0_IRQHandler(void) {
-    // 調用 HAL 庫的中斷處理函式
     HAL_DMA_IRQHandler(&hdma_tim17_ch1);
 
     Remote.count++;

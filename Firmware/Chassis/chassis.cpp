@@ -48,3 +48,13 @@ void CHASSIS::update_current_chassis_speed(void){
   return;
 }
 
+
+/**
+ * @brief 移動至目標點。
+ * 
+ * @param x X 座標，車頭方向為正。
+ * @param y y 座標，車頭右方為正。
+ */
+void CHASSIS::moveTo(float x, float y){
+  return;
+}

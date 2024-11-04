@@ -33,8 +33,8 @@ public:
 	void global_update(void);
 
 private:
-  	// PPM 訊號間隔判定（單位：us）
-  	const uint16_t _PPM_INTERVAL = 6000; //超過 6ms 視為新週期。
+  // PPM 訊號間隔判定（單位：us）
+	const uint16_t _PPM_INTERVAL = 6000; //超過 6ms 視為新週期。
 
 	// PPM 訊號占空比判定（單位：us），僅用於判定 Switch 撥桿
 	const uint16_t _PPM_SWITCH_DUTY_MIN = 1050; //小於 1050 視為低電平
@@ -44,6 +44,9 @@ private:
 	const uint16_t _PPM_JOYSTICK_DUTY_MIN = 1004; 
 	const uint16_t _PPM_JOYSTICK_DUTY_MAX = 2011;
 	const uint16_t _PPM_JOYSTICK_DUTY_DEFAULT = 1508;
+
+	// case 2 (A0D1) 啟動 Flag，切換模式後需重新啟動
+	bool _case2_flag = false;
 
 	// Switch 撥桿狀態
 	enum SWITCH{

@@ -6,13 +6,20 @@
  */
 
 #include <turret.hpp>
+#include <stepper.hpp>
 #include <dc.hpp>
 
 TURRET Turret;
 
-void TURRET::global_default_mode(uint8_t device, int mode){
+/**
+ * @brief 根據預設模式，使 SWIVEL 及 LAUNCHER 以特定位置和速度運行。
+ * 
+ * @param device 左砲台或右砲台
+ * @param mode 不同目標點的模式
+ */
+void TURRET::operate_with_default_mode(uint8_t device, int mode){
     // LEFT
-    if(device == 3){
+    if(device == _LEFT){
         this->_current_mode_left = mode;
 
         switch (mode){
@@ -44,7 +51,7 @@ void TURRET::global_default_mode(uint8_t device, int mode){
     }
 
     // RIGHT
-    else if(device == 4){
+    else if(device == _RIGHT){
         this->_current_mode_right = mode;
         
         switch (mode){
@@ -74,5 +81,39 @@ void TURRET::global_default_mode(uint8_t device, int mode){
             break;
         }
     }
+    return;
+}
+
+void TURRET::shoot(int device){
+    if(device == _LEFT){
+        // trigger
+
+    }
+    
+    else if(device == _RIGHT){
+        // trigger
+    }
+
+    return;
+}
+
+void TURRET::fine_tune(uint8_t device, float swivel_speed, float elevation_speed){
+    if(device == _LEFT){
+        // swivel
+        // elevation
+    }
+    
+    else if(device == _RIGHT){
+        // swivel
+        // elevation
+    }
+    
+    return;
+}
+
+
+void TURRET::reload(uint8_t device){
+    if(device == _LEFT) Stepper_L.open_loop_step_move(true, 10);
+    else if(device == _RIGHT) Stepper_R.open_loop_step_move(true, 10);
     return;
 }
