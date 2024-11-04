@@ -21,19 +21,20 @@ public:
 
 	void init(void);
 
-	uint8_t switch_mapping(uint16_t ppmHigh);
 	float joystick_mapping(uint16_t ppmHigh, float output_min, float output_max);
+	uint8_t switch_mapping(uint16_t ppmHigh);
+	uint8_t switch_mode_mapping(void);
 
 	void ppm_raw_to_cnt(void);
 	void ppm_cnt_to_high(void);
 	void ppmHigh_to_global(void);
 
-	uint8_t switch_mode_mapping(void);
+	uint8_t joystick_state(uint8_t dir);
 	void global_update(void);
 
 private:
-  // PPM 訊號間隔判定（單位：us）
-  const uint16_t _PPM_INTERVAL = 6000; //超過 6ms 視為新週期。
+  	// PPM 訊號間隔判定（單位：us）
+  	const uint16_t _PPM_INTERVAL = 6000; //超過 6ms 視為新週期。
 
 	// PPM 訊號占空比判定（單位：us），僅用於判定 Switch 撥桿
 	const uint16_t _PPM_SWITCH_DUTY_MIN = 1050; //小於 1050 視為低電平
@@ -49,6 +50,26 @@ private:
 		_SWITCH_UP = 1,
 		_SWITCH_MIDDLE = 2,
 		_SWITCH_DOWN = 3
+	};
+
+	// JOYSTICK 搖桿狀態
+	enum JOYSTICK{
+		_LEFT_TOP = 1,
+		_MIDDLE_TOP = 2,
+		_RIGHT_TOP = 3,
+		_LEFT_MIDDLE = 4,
+		_MIDDLE_MIDDLE = 5,
+		_RIGHT_MIDDLE = 6,
+		_LEFT_BOTTOM = 7,
+		_MIDDLE_BOTTOM = 8,
+		_RIGHT_BOTTOM = 9
+	};
+
+	enum DIR{
+		_FORWARD = 1,
+		_BACKWARD = 2,
+		_LEFT = 3,
+		_RIGHT = 4
 	};
 };
 

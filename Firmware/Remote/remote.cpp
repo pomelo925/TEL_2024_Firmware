@@ -7,6 +7,7 @@
 
 #include <remote.hpp>
 #include <global.hpp>
+#include <turret.hpp>
 
 extern TIM_HandleTypeDef htim17;
 extern DMA_HandleTypeDef hdma_tim17_ch1;
@@ -27,19 +28,62 @@ void REMOTE::init(){
  */
 void REMOTE::global_update(void){
     switch(Global.mode){
+        // swa = up, swd = up => 手動底盤模式，CH1~2粗調，CH3~4精調
         case 1:
             Global.Chassis_X_Speed = REMOTE::joystick_mapping(this->ppmHigh[0], -1.f, 1.f);
             Global.Chassis_Theta_Speed = REMOTE::joystick_mapping(this->ppmHigh[1], -1.f, 1.f);
-            Global.Swivel_L_Speed = REMOTE::joystick_mapping(this->ppmHigh[3], -1.f, 1.f);
-            Global.Swivel_R_Speed = REMOTE::joystick_mapping(this->ppmHigh[2], -1.f, 1.f);
+            Global.Chassis_X_Speed = REMOTE::joystick_mapping(this->ppmHigh[0], -0.2f, 0.2f);
+            Global.Chassis_Theta_Speed = REMOTE::joystick_mapping(this->ppmHigh[1], -0.2f, 0.2f);
             break;
         
-        case 2:            
-            Global.launcher_L1_DUTY = REMOTE::joystick_mapping(this->ppmHigh[1], -100, 100);
-            Global.launcher_L2_DUTY = REMOTE::joystick_mapping(this->ppmHigh[1], -100, 100);
-            Global.launcher_R1_DUTY = REMOTE::joystick_mapping(this->ppmHigh[3], -100, 100);
-            Global.launcher_R2_DUTY = REMOTE::joystick_mapping(this->ppmHigh[3], -100, 100);
+        // swa = up, swd = down => 自動砲台模式，CH1~2左砲，CH3~4右砲
+        case 2:
+            switch(REMOTE::joystick_state(_LEFT)){
+                case _LEFT_TOP:
+                    Turret.global_default_mode(_LEFT, 1); break;
+                case _RIGHT_TOP:
+                    Turret.global_default_mode(_LEFT, 2); break;
+                case _LEFT_MIDDLE:
+                    Turret.global_default_mode(_LEFT, 4); break;
+                case _RIGHT_MIDDLE:
+                    Turret.global_default_mode(_LEFT, 5); break;
+                case _LEFT_BOTTOM: 
+                    Turret.global_default_mode(_LEFT, 7); break;
+                case _RIGHT_BOTTOM:
+                    Turret.global_default_mode(_LEFT, 8); break;
+                default:
+                    break;
+            }
+
+            switch(REMOTE::joystick_state(_RIGHT)){
+                case _LEFT_TOP:
+                    Turret.global_default_mode(_RIGHT, 2); break;
+                case _RIGHT_TOP:
+                    Turret.global_default_mode(_RIGHT, 2); break;
+                case _LEFT_MIDDLE:
+                    Turret.global_default_mode(_RIGHT, 4); break;
+                case _RIGHT_MIDDLE:
+                    Turret.global_default_mode(_RIGHT, 5); break;
+                case _LEFT_BOTTOM: 
+                    Turret.global_default_mode(_RIGHT, 7); break;
+                case _RIGHT_BOTTOM:
+                    Turret.global_default_mode(_RIGHT, 8); break;
+                default:
+                    break;
+            }
+
             break;
+        
+        // swa = down, swd = up => 
+        case 3:
+
+            break;
+
+        // swa = down, swd = down => 手動砲台模式，微調左右砲位置
+        case 4:
+
+            break;
+
 
         default:
             break;
@@ -72,13 +116,10 @@ uint8_t REMOTE::switch_mapping(uint16_t ppmHigh){
  * @brief Switch 撥桿與模式映射的函數。
  */
 uint8_t REMOTE::switch_mode_mapping(void){
-    if(Global.swa == _SWITCH_UP && Global.swb == _SWITCH_UP) return 1;
-    if(Global.swa == _SWITCH_UP && Global.swb == _SWITCH_MIDDLE) return 2;
-    if(Global.swa == _SWITCH_UP && Global.swb == _SWITCH_DOWN) return 3;
-
-    if(Global.swa == _SWITCH_DOWN && Global.swb == _SWITCH_UP) return 4;
-    if(Global.swa == _SWITCH_DOWN && Global.swb == _SWITCH_MIDDLE) return 5;
-    if(Global.swa == _SWITCH_DOWN && Global.swb == _SWITCH_DOWN) return 6;
+    if(Global.swa == _SWITCH_UP && Global.swd == _SWITCH_UP) return 1;
+    if(Global.swa == _SWITCH_UP && Global.swd == _SWITCH_DOWN) return 2;
+    if(Global.swa == _SWITCH_DOWN && Global.swd == _SWITCH_UP) return 3;
+    if(Global.swa == _SWITCH_DOWN && Global.swd == _SWITCH_DOWN) return 4;
 
     return 0;
 }
@@ -88,16 +129,61 @@ uint8_t REMOTE::switch_mode_mapping(void){
 /** 
  * @brief 將 PPM 資料傳給 Global 資料。
  */
-void REMOTE::ppmHigh_to_global(){
+void REMOTE::ppmHigh_to_global(void){
     Global.swa = REMOTE::switch_mapping(this->ppmHigh[4]);
     Global.swb = REMOTE::switch_mapping(this->ppmHigh[5]);
     Global.swc = REMOTE::switch_mapping(this->ppmHigh[6]);
     Global.swd = REMOTE::switch_mapping(this->ppmHigh[7]);
 
     Global.mode = REMOTE::switch_mode_mapping();
-
-    REMOTE::global_update();
     return;
+}
+
+/**
+ * @brief Switch 撥桿狀態。
+ */
+uint8_t REMOTE::joystick_state(uint8_t dir){
+    const static int LOW = 1200, HIGH = 1800;
+
+    // 檢查左搖桿
+    if(dir == this->_LEFT){
+        if(this->ppmHigh[0] < LOW){
+            if(this->ppmHigh[1] > HIGH) return this->_LEFT_TOP;
+            if(this->ppmHigh[1] < LOW) return this->_LEFT_BOTTOM;
+            return this->_LEFT_MIDDLE;
+        }
+        
+        if(this->ppmHigh[0] > HIGH){
+            if(this->ppmHigh[1] > HIGH) return this->_RIGHT_TOP;
+            if(this->ppmHigh[1] < LOW) return this->_RIGHT_BOTTOM;
+            return this->_RIGHT_MIDDLE;
+        }
+
+        if(this->ppmHigh[1] > HIGH) return this->_MIDDLE_TOP;
+        if(this->ppmHigh[1] < LOW) return this->_MIDDLE_BOTTOM;
+        return this->_MIDDLE_MIDDLE;
+    }
+
+    // 檢查右搖桿
+    if(dir == this->_RIGHT){
+        if(this->ppmHigh[3] < LOW){
+            if(this->ppmHigh[2] > HIGH) return this->_LEFT_TOP;
+            if(this->ppmHigh[2] < LOW) return this->_LEFT_BOTTOM;
+            return this->_LEFT_MIDDLE;
+        }
+
+        if(this->ppmHigh[3] > HIGH){
+            if(this->ppmHigh[2] > HIGH) return this->_RIGHT_TOP;
+            if(this->ppmHigh[2] < LOW) return this->_RIGHT_BOTTOM;
+            return this->_RIGHT_MIDDLE;
+        }
+
+        if(this->ppmHigh[2] > HIGH) return this->_MIDDLE_TOP;
+        if(this->ppmHigh[2] < LOW) return this->_MIDDLE_BOTTOM;
+        return this->_MIDDLE_MIDDLE;
+    }
+
+    return 0;
 }
 
 
@@ -167,6 +253,7 @@ extern "C" void DMA1_Stream0_IRQHandler(void) {
 		Remote.ppm_raw_to_cnt();
 		Remote.ppm_cnt_to_high();
 		Remote.ppmHigh_to_global();
+        Remote.global_update();
     }
 
     if(Remote.count%2) __HAL_TIM_SET_COUNTER(&htim17, 0);

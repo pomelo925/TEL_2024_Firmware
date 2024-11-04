@@ -97,6 +97,14 @@ void DC::close_loop_pwm_output(){
 
 
 /**
+ * @brief PID 追位置
+ */
+void DC::close_loop_pos(float pos){
+  return;
+}
+
+
+/**
  * @brief 設定目標輪速 (rad/s)
  * @param speed 目標輪速
  */

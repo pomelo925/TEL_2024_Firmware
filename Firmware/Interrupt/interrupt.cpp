@@ -8,6 +8,7 @@
 #include <interrupt.hpp>
 #include <global.hpp>
 #include <dc.hpp>
+#include <chassis.hpp>
 
 extern TIM_HandleTypeDef htim12;
 
@@ -21,6 +22,7 @@ void INTERRUPT::init(void){
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if(htim->Instance == TIM16){
 		/* DC MOTOR：底盤  */
+		Chassis.run(Global.Chassis_X_Speed, Global.Chassis_Theta_Speed);
 		DC_ChassisL.close_loop_pwm_output();
 		DC_ChassisR.close_loop_pwm_output();
 		DC_SwivelL.close_loop_pwm_output();

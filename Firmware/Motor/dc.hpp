@@ -49,6 +49,7 @@ public:
   
   void open_loop_pwm_output(float duty);
   void close_loop_pwm_output(void);
+  void close_loop_pos(float pos);
 
   void set_target_wheel_speed(float speed);
   void updateCurrentWheelSpeed(void);

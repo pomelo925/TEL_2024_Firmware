@@ -16,8 +16,8 @@ CHASSIS Chassis;
  * @param void
  */
 void CHASSIS::run(float GLOBAL_x, float GLOBAL_theta){
-  TARGET_SPEED.x = GLOBAL_x;
-  TARGET_SPEED.theta = GLOBAL_theta;
+  this->TARGET_SPEED.x = GLOBAL_x;
+  this->TARGET_SPEED.theta = GLOBAL_theta;
 
   CHASSIS::update_target_wheel_speed();
   CHASSIS::update_current_chassis_speed();
