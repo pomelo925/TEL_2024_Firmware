@@ -33,10 +33,14 @@ void REMOTE::global_update(void){
         case 1:
             _case2_flag = false;
 
-            Global.Chassis_X_Speed = REMOTE::joystick_mapping(this->ppmHigh[0], -1.f, 1.f);
-            Global.Chassis_Theta_Speed = REMOTE::joystick_mapping(this->ppmHigh[1], -1.f, 1.f);
-            Global.Chassis_X_Speed = REMOTE::joystick_mapping(this->ppmHigh[0], -0.2f, 0.2f);
-            Global.Chassis_Theta_Speed = REMOTE::joystick_mapping(this->ppmHigh[1], -0.2f, 0.2f);
+            if( fabs(this->ppmHigh[0]-_PPM_JOYSTICK_DUTY_DEFAULT) > 100 ||
+                fabs(this->ppmHigh[1]-_PPM_JOYSTICK_DUTY_DEFAULT) > 100){
+				Global.Chassis_X_Speed = REMOTE::joystick_mapping(this->ppmHigh[1], -1.2f, 1.2f);
+				Global.Chassis_Theta_Speed = REMOTE::joystick_mapping(this->ppmHigh[0], -0.8f, 0.8f);
+				break;
+            }
+            Global.Chassis_X_Speed = REMOTE::joystick_mapping(this->ppmHigh[3], -0.2f, 0.2f);
+            Global.Chassis_Theta_Speed = REMOTE::joystick_mapping(this->ppmHigh[2], -0.2f, 0.2f);
             break;
         
         // swa = up, swd = down => 自動砲台模式，CH1~2左砲，CH3~4右砲，swb、swc改變就發射        
@@ -78,22 +82,21 @@ void REMOTE::global_update(void){
             }
             
             // 進入此模式後，先更新當前 swb、swc 狀態
-            static uint8_t swb_state_last = 0, swc_state_last = 0;
             if(!_case2_flag) {
-                swb_state_last = Global.swb;
-                swc_state_last = Global.swc;
+                this->swb_state_last = Global.swb;
+                this->swc_state_last = Global.swc;
                 _case2_flag = true;
             }
             // 如果 swb、swc 狀態改變，則發射
-            if(Global.swb != swb_state_last){
+            if(Global.swb != this->swb_state_last){
                 Turret.shoot(_LEFT);
                 Turret.reload(_LEFT);
-                swb_state_last = Global.swb;
+                this->swb_state_last = Global.swb;
             }
-            if(Global.swc != swc_state_last){
+            if(Global.swc != this->swc_state_last){
                 Turret.shoot(_RIGHT);
                 Turret.reload(_RIGHT);
-                swc_state_last = Global.swc;
+                this->swc_state_last = Global.swc;
             }
     
             break;

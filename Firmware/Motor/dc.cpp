@@ -23,20 +23,20 @@ DC DC_LauncherR1(&htim8, TIM_CHANNEL_3, GPIOD, GPIO_PIN_2);
 DC DC_LauncherR2(&htim8, TIM_CHANNEL_1, GPIOD, GPIO_PIN_3);
 
 DC DC_ChassisL(&htim8, TIM_CHANNEL_2, GPIOC, GPIO_PIN_10,
-                &htim5, 2.5f, 80.f, 0.f,
-                1024.f, 26.f, 0.001f, false);
+                &htim5, 40.f, 0.f, 0.f,
+                1024.f, 26.f, 0.001f);
                 
 DC DC_ChassisR(&htim8, TIM_CHANNEL_4, GPIOC, GPIO_PIN_11,
-                &htim3, 2.5f, 80.f, 0.f,
-                1024.f, 26.f, 0.001f, false);
+                &htim3, 40.f, 0.f, 0.f,
+                1024.f, 26.f, 0.001f);
 
 DC DC_SwivelL(&htim23, TIM_CHANNEL_1, GPIOD, GPIO_PIN_1,
                 &htim1, 2.5f, 80.f, 0.f,
-                1024.f, 26.f, 0.001f, false);
+                1024.f, 26.f, 0.001f);
 
 DC DC_SwivelR(&htim24, TIM_CHANNEL_4, GPIOG, GPIO_PIN_10,
                 &htim4, 2.5f, 80.f, 0.f,
-                1024.f, 26.f, 0.001f, false);
+                1024.f, 26.f, 0.001f);
 
 
 /**
@@ -67,7 +67,6 @@ void DC::open_loop_pwm_output(float duty){
 
   // PWM 輸出
 	__HAL_TIM_SET_COMPARE(this->getPwmTimer(), this->getPwmChannel(), (abs(duty) * PWM_SCALE) / 100);
-//	__HAL_TIM_SET_COMPARE(this->getPwmTimer(), this->getPwmChannel(), PWM_SCALE);
 
   return;
 }
@@ -79,8 +78,8 @@ void DC::open_loop_pwm_output(float duty){
  */
 void DC::close_loop_pwm_output(){
   // 狀態更新
-	DC::updateCurrentWheelSpeed();
-	DC::updateTargetPWM();
+	DC::update_current_wheel_speed();
+	DC::update_target_PWM();
 
   // 重置計數器
 	__HAL_TIM_SetCounter(this->getEncTimer(), 0);
@@ -117,7 +116,7 @@ void DC::set_target_wheel_speed(float speed){
 /**
  * @brief 根據脈衝，更新當前輪速 (rad/s)
  */
-void DC::updateCurrentWheelSpeed() {
+void DC::update_current_wheel_speed() {
   _current_pulse = __HAL_TIM_GetCounter(this->_encTimer);
   const float speed = (float)(this->_current_pulse / 4 / this->_encoder_res / this->_sr_ratio / this->_interval) * 2.f * M_PI;
   this->_current_wheel_speed = this->_direction ? speed : -speed;
@@ -128,7 +127,7 @@ void DC::updateCurrentWheelSpeed() {
 /**
  * @brief 更新目標 PWM 輸出
  */
-void DC::updateTargetPWM(void) {
+void DC::update_target_PWM(void) {
   this->_error = this->_target_wheel_speed - this->_current_wheel_speed;
 
   static int count = 0;
@@ -141,11 +140,11 @@ void DC::updateTargetPWM(void) {
   else if (this->_integral > this->PWM_SCALE / this->_ki) this->_integral = this->PWM_SCALE / this->_ki;
   
 
-
   const float derivative = (this->_error - this->_previous_error) / this->_interval;
   this->_previous_error = this->_error;
 
   // 計算 PID 輸出
+
   this->_target_PWM = this->_error * this->_kp + this->_integral * this->_ki + derivative * this->_kd;
 
   // 限制 PWM 輸出

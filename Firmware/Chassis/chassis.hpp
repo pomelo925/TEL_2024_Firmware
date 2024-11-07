@@ -21,8 +21,8 @@ private:
   SpeedVector CURRENT_SPEED, TARGET_SPEED;
 
   /* Kinectics Arguments (mks)*/
-  const float _wheel_distance = 0.2f;
-  const float _wheel_radius = 0.05f;
+  const float _wheel_distance = 0.71f;
+  const float _wheel_radius = 0.0625f;
 
   /* functions */
   void update_target_wheel_speed(void);

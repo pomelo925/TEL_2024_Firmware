@@ -17,10 +17,8 @@ public:
         GPIO_TypeDef* stepPort, uint16_t stepPin):
         _dirPort(dirPort), _dirPin(dirPin), _stepPort(stepPort), _stepPin(stepPin){};
 
-  void open_loop_step_moveTo(uint8_t goal_pos);
-  void open_loop_step_move(bool isForward, uint8_t pos);
-  void open_loop_move(bool isForward);
-  void zero_cali(void);
+  void open_loop_step(void);
+  void set_goal_pos(const int goalPos){this->_goal_pos = goalPos;};
 
 
 private:
@@ -29,12 +27,11 @@ private:
   GPIO_TypeDef* _stepPort = nullptr;
   uint16_t _stepPin = 0;
 
-  // MS1 = GND, MS2 = GND => 8 细分控制精度
-  uint8_t _sub_division = 8;
-  // 步進旋轉一圈，需 1600 個脈衝
-  uint16_t _round_step = 1600;
+  uint8_t _sub_division = 8;  // MS1 = GND, MS2 = GND => 8 细分控制精度
+  uint16_t _round_step = 1600; // 步進旋轉一圈，需 1600 個脈衝
 
-  uint8_t _current_pos = 0;
+  // 目標步數
+  int _goal_pos = 0;
 };
 
 extern STEPPER Stepper_L, Stepper_R;

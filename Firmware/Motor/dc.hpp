@@ -38,10 +38,10 @@ public:
    */
   DC(TIM_HandleTypeDef* pwmTimer, uint32_t pwmChannel, GPIO_TypeDef* dirPort, uint16_t dirPin,
     TIM_HandleTypeDef* encTimer, float kp, float ki, float kd,
-    float res, float ratio, float interval , bool dir)
+    float res, float ratio, float interval)
     :_pwmTimer(pwmTimer), _pwmChannel(pwmChannel), _dirPort(dirPort), _dirPin(dirPin),
      _encTimer(encTimer), _kp(kp), _ki(ki), _kd(kd),
-     _encoder_res(res), _sr_ratio(ratio), _interval(interval), _direction(dir){}
+     _encoder_res(res), _sr_ratio(ratio), _interval(interval){}
 
 
   
@@ -52,8 +52,8 @@ public:
   void close_loop_pos(float pos);
 
   void set_target_wheel_speed(float speed);
-  void updateCurrentWheelSpeed(void);
-  void updateTargetPWM(void);
+  void update_current_wheel_speed(void);
+  void update_target_PWM(void);
 
   TIM_HandleTypeDef* getEncTimer(void) const {return _encTimer;}
   TIM_HandleTypeDef* getPwmTimer(void) const {return _pwmTimer;}
@@ -93,7 +93,7 @@ private:
 
   float _duty=0.f;
 
-  static constexpr float PWM_SCALE = 1000.f;
+  static constexpr float PWM_SCALE = 5000.f;
 };
 
 

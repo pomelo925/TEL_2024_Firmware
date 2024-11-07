@@ -113,7 +113,7 @@ void TURRET::fine_tune(uint8_t device, float swivel_speed, float elevation_speed
 
 
 void TURRET::reload(uint8_t device){
-    if(device == _LEFT) Stepper_L.open_loop_step_move(true, 10);
-    else if(device == _RIGHT) Stepper_R.open_loop_step_move(true, 10);
+    if(device == _LEFT) Stepper_L.set_goal_pos(-5500);
+    else if(device == _RIGHT) Stepper_R.set_goal_pos(-5500);
     return;
 }

@@ -47,6 +47,7 @@ private:
 
 	// case 2 (A0D1) 啟動 Flag，切換模式後需重新啟動
 	bool _case2_flag = false;
+	uint8_t swb_state_last = 0, swc_state_last = 0;
 
 	// Switch 撥桿狀態
 	enum SWITCH{
