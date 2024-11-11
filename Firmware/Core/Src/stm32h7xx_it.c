@@ -60,6 +60,8 @@ extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim8;
 extern TIM_HandleTypeDef htim16;
+extern TIM_HandleTypeDef htim23;
+extern TIM_HandleTypeDef htim24;
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart3;
 /* USER CODE BEGIN EV */
@@ -217,9 +219,7 @@ void RCC_IRQHandler(void)
   /* USER CODE END RCC_IRQn 1 */
 }
 
-/**
-  * @brief This function handles DMA1 stream0 global interrupt.
-  */
+
 
 /**
   * @brief This function handles TIM1 capture compare interrupt.
@@ -303,6 +303,34 @@ void TIM16_IRQHandler(void)
   /* USER CODE BEGIN TIM16_IRQn 1 */
 
   /* USER CODE END TIM16_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM23 global interrupt.
+  */
+void TIM23_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM23_IRQn 0 */
+
+  /* USER CODE END TIM23_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim23);
+  /* USER CODE BEGIN TIM23_IRQn 1 */
+
+  /* USER CODE END TIM23_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM24 global interrupt.
+  */
+void TIM24_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM24_IRQn 0 */
+
+  /* USER CODE END TIM24_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim24);
+  /* USER CODE BEGIN TIM24_IRQn 1 */
+
+  /* USER CODE END TIM24_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

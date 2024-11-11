@@ -10,6 +10,7 @@
 #include <stepper.hpp>
 #include <dc.hpp>
 #include <chassis.hpp>
+#include <servo.hpp>
 
 
 extern TIM_HandleTypeDef htim14;
@@ -48,9 +49,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 
 		/* SERVO：板機 */
 
+	}
 
+
+	// TIM24 : 1000hz
+	if(htim->Instance == TIM24 ){
 		/* SERVO：仰角 */
-
+		ServoElevatorR.open_loop_step();
+		ServoElevatorL.open_loop_step();
 	}
 	return;
 }

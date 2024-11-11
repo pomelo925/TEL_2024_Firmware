@@ -317,6 +317,9 @@ void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef* htim_pwm)
   /* USER CODE END TIM23_MspInit 0 */
     /* Peripheral clock enable */
     __HAL_RCC_TIM23_CLK_ENABLE();
+    /* TIM23 interrupt Init */
+    HAL_NVIC_SetPriority(TIM23_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(TIM23_IRQn);
   /* USER CODE BEGIN TIM23_MspInit 1 */
 
   /* USER CODE END TIM23_MspInit 1 */
@@ -328,6 +331,9 @@ void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef* htim_pwm)
   /* USER CODE END TIM24_MspInit 0 */
     /* Peripheral clock enable */
     __HAL_RCC_TIM24_CLK_ENABLE();
+    /* TIM24 interrupt Init */
+    HAL_NVIC_SetPriority(TIM24_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(TIM24_IRQn);
   /* USER CODE BEGIN TIM24_MspInit 1 */
 
   /* USER CODE END TIM24_MspInit 1 */
@@ -614,6 +620,9 @@ void HAL_TIM_PWM_MspDeInit(TIM_HandleTypeDef* htim_pwm)
   /* USER CODE END TIM23_MspDeInit 0 */
     /* Peripheral clock disable */
     __HAL_RCC_TIM23_CLK_DISABLE();
+
+    /* TIM23 interrupt DeInit */
+    HAL_NVIC_DisableIRQ(TIM23_IRQn);
   /* USER CODE BEGIN TIM23_MspDeInit 1 */
 
   /* USER CODE END TIM23_MspDeInit 1 */
@@ -625,6 +634,9 @@ void HAL_TIM_PWM_MspDeInit(TIM_HandleTypeDef* htim_pwm)
   /* USER CODE END TIM24_MspDeInit 0 */
     /* Peripheral clock disable */
     __HAL_RCC_TIM24_CLK_DISABLE();
+
+    /* TIM24 interrupt DeInit */
+    HAL_NVIC_DisableIRQ(TIM24_IRQn);
   /* USER CODE BEGIN TIM24_MspDeInit 1 */
 
   /* USER CODE END TIM24_MspDeInit 1 */

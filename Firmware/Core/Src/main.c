@@ -684,9 +684,9 @@ static void MX_TIM23_Init(void)
 
   /* USER CODE END TIM23_Init 1 */
   htim23.Instance = TIM23;
-  htim23.Init.Prescaler = 0;
+  htim23.Init.Prescaler = 550-1;
   htim23.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim23.Init.Period = 4294967295;
+  htim23.Init.Period = 1000-1;
   htim23.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim23.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_PWM_Init(&htim23) != HAL_OK)
@@ -741,9 +741,9 @@ static void MX_TIM24_Init(void)
 
   /* USER CODE END TIM24_Init 1 */
   htim24.Instance = TIM24;
-  htim24.Init.Prescaler = 0;
+  htim24.Init.Prescaler = 550-1;
   htim24.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim24.Init.Period = 4294967295;
+  htim24.Init.Period = 1000-1;
   htim24.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim24.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_PWM_Init(&htim24) != HAL_OK)
