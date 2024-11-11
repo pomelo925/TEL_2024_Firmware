@@ -7,12 +7,21 @@
 
 #include <servo.hpp>
 
+/* TYPE 1 SERVO */
 extern TIM_HandleTypeDef htim24;
-
-extern UART_HandleTypeDef huart3;
 
 SERVO ServoElevatorR(&htim24,1);
 SERVO ServoElevatorL(&htim24,3);
+
+
+/* TYPE 2 SERVO */
+extern UART_HandleTypeDef huart1;
+extern UART_HandleTypeDef huart3;
+
+
+SERVO ServoTriggerR(&huart1, 0);
+SERVO ServoTriggerL(&huart3, 0);
+
 
 
 /**
