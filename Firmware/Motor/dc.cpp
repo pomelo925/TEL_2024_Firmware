@@ -5,6 +5,10 @@
  *      Author: pomelo925
  */
 
+#include "stm32h7xx.h"
+#include "stm32h7xx_hal.h"
+#include "stm32h7xx_hal_dma.h"
+
 #include <dc.hpp>
 
 extern TIM_HandleTypeDef htim1;
@@ -16,11 +20,20 @@ extern TIM_HandleTypeDef htim15;
 extern TIM_HandleTypeDef htim23;
 extern TIM_HandleTypeDef htim24;
 
+extern DMA_HandleTypeDef hdma_tim1_ch1;
+extern DMA_HandleTypeDef hdma_tim4_ch1;
+
 
 DC DC_LauncherL1(&htim15, TIM_CHANNEL_1, GPIOA, GPIO_PIN_15);
 DC DC_LauncherL2(&htim23, TIM_CHANNEL_2, GPIOC, GPIO_PIN_13);
 DC DC_LauncherR1(&htim8, TIM_CHANNEL_3, GPIOD, GPIO_PIN_2);
 DC DC_LauncherR2(&htim8, TIM_CHANNEL_1, GPIOD, GPIO_PIN_3);
+
+DC DC_SwivelL(&htim23, TIM_CHANNEL_1, GPIOD, GPIO_PIN_1,
+		&htim1, TIM_CHANNEL_1, GPIOD, GPIO_PIN_0);
+
+DC DC_SwivelR(&htim24, TIM_CHANNEL_4, GPIOG, GPIO_PIN_10,
+		&htim4, TIM_CHANNEL_1, GPIOE, GPIO_PIN_7);
 
 DC DC_ChassisL(&htim8, TIM_CHANNEL_2, GPIOC, GPIO_PIN_10,
                 &htim5, 40.f, 0.f, 0.f,
@@ -28,14 +41,6 @@ DC DC_ChassisL(&htim8, TIM_CHANNEL_2, GPIOC, GPIO_PIN_10,
                 
 DC DC_ChassisR(&htim8, TIM_CHANNEL_4, GPIOC, GPIO_PIN_11,
                 &htim3, 40.f, 0.f, 0.f,
-                1024.f, 26.f, 0.001f);
-
-DC DC_SwivelL(&htim23, TIM_CHANNEL_1, GPIOD, GPIO_PIN_1,
-                &htim1, 2.5f, 80.f, 0.f,
-                1024.f, 26.f, 0.001f);
-
-DC DC_SwivelR(&htim24, TIM_CHANNEL_4, GPIOG, GPIO_PIN_10,
-                &htim4, 2.5f, 80.f, 0.f,
                 1024.f, 26.f, 0.001f);
 
 
@@ -49,6 +54,10 @@ void DC::init(void){
   /* 啟動 PWM 輸出 Timer */
   HAL_TIM_PWM_Start_IT(this->getPwmTimer(), this->getPwmChannel());
   
+
+//  HAL_TIM_IC_Start_DMA(&htim1, TIM_CHANNEL_1, this->ppmRaw, 18);
+//  HAL_TIM_IC_Start_DMA(&htim4, TIM_CHANNEL_1, this->ppmRaw, 18);
+
   return;
 }
 
@@ -58,15 +67,13 @@ void DC::init(void){
  * @brief 直接輸出固定占空比
  * @param 占空比（單位：%）
  */
-void DC::open_loop_pwm_output(float duty){
-	this->_duty = duty;
-
+void DC::open_loop_pwm_output(void){
   // 設置電機旋轉方向
-	if(duty >= 0) HAL_GPIO_WritePin(this->getDirPort(), this->getDirPin(), GPIO_PIN_SET);
+	if(_duty >= 0) HAL_GPIO_WritePin(this->getDirPort(), this->getDirPin(), GPIO_PIN_SET);
 	else HAL_GPIO_WritePin(this->getDirPort(), this->getDirPin(), GPIO_PIN_RESET);
 
   // PWM 輸出
-	__HAL_TIM_SET_COMPARE(this->getPwmTimer(), this->getPwmChannel(), (abs(duty) * PWM_SCALE) / 100);
+	__HAL_TIM_SET_COMPARE(this->getPwmTimer(), this->getPwmChannel(), (abs(_duty) * PWM_SCALE) / 100);
 
   return;
 }
@@ -155,3 +162,28 @@ void DC::update_target_PWM(void) {
   _direction = (this->_target_PWM >= 0);
 }
 
+
+/**
+ * @brief DMA 中斷處理函式
+ *  記得在 stm32h7xx_it.c 刪除函數，否則會有 First Defined Here 的錯誤。
+ */
+extern "C" void DMA1_Stream1_IRQHandler(void) {
+    HAL_DMA_IRQHandler(&hdma_tim1_ch1);
+
+    __HAL_TIM_SET_COUNTER(&htim1, 0);
+
+    return;
+}
+
+
+/**
+ * @brief DMA 中斷處理函式
+ *  記得在 stm32h7xx_it.c 刪除函數，否則會有 First Defined Here 的錯誤。
+ */
+extern "C" void DMA1_Stream2_IRQHandler(void) {
+    HAL_DMA_IRQHandler(&hdma_tim4_ch1);
+
+    __HAL_TIM_SET_COUNTER(&htim4, 0);
+
+    return;
+}

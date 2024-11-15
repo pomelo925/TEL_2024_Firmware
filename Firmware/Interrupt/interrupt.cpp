@@ -13,7 +13,7 @@
 #include <servo.hpp>
 
 
-extern TIM_HandleTypeDef htim14;
+extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim16;
 
 INTERRUPT Interrupt;
@@ -39,25 +39,25 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 		Chassis.run(Global.Chassis_X_Speed, Global.Chassis_Theta_Speed);
 		DC_ChassisL.close_loop_pwm_output();
 		DC_ChassisR.close_loop_pwm_output();
-		DC_SwivelL.close_loop_pwm_output();
-		DC_SwivelR.close_loop_pwm_output();
 
-		DC_LauncherL1.open_loop_pwm_output(Global.launcher_L1_DUTY);
-		DC_LauncherL2.open_loop_pwm_output(Global.launcher_L2_DUTY);
-		DC_LauncherR1.open_loop_pwm_output(Global.launcher_R1_DUTY);
-		DC_LauncherR2.open_loop_pwm_output(Global.launcher_R2_DUTY);
+		DC_LauncherL1.open_loop_pwm_output();
+		DC_LauncherL2.open_loop_pwm_output();
+		DC_LauncherR1.open_loop_pwm_output();
+		DC_LauncherR2.open_loop_pwm_output();
+
+		DC_SwivelL.open_loop_pwm_output();
+		DC_SwivelR.open_loop_pwm_output();
+
+		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_1, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_0, GPIO_PIN_SET);
 
 		/* SERVO：板機 */
 
-	}
 
-
-	// TIM24 : 1000hz
-	if(htim->Instance == TIM24 ){
 		/* SERVO：仰角 */
-		ServoElevatorR.open_loop_step();
-		ServoElevatorL.open_loop_step();
+		ServoTriggerR.UART_send_pos(1300, 1000);
 	}
+
 	return;
 }
 

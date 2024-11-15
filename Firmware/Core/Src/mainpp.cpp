@@ -12,6 +12,7 @@
 #include <dc.hpp>
 #include <global.hpp>
 #include <interrupt.hpp>
+#include <servo.hpp>
 
 void main_function(void){
 	/* 初始化 */
@@ -24,9 +25,12 @@ void main_function(void){
 	DC_LauncherR1.init();
 	DC_LauncherR2.init();
 
-	
+
+	SERVO::init();
 	Interrupt.init();
 	Remote.init();
+
+	ServoTriggerR.UART_send_pos(1000, 1000);
 
 
 	/* 無限迴圈 */

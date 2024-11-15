@@ -13,6 +13,7 @@
 class DC{
 public:
   /**
+   * 適用開迴路控制直流馬達
    * @param pwmTimer PWM 輸出定時器
    * @param pwmChannel PWM 輸出定時器通道
    * @param dirPort 方向 GPIO 端口
@@ -23,6 +24,7 @@ public:
 
 
   /**
+   * 適用閉迴路控制直流馬達
    * @param pwmTimer PWM 輸出定時器
    * @param pwmChannel PWM 輸出定時器通道
    * @param dirPort 方向 GPIO 端口
@@ -34,7 +36,6 @@ public:
    * @param res 編碼器解析度
    * @param ratio 齒輪比
    * @param interval 時間間隔
-   * @param dir 旋轉方向
    */
   DC(TIM_HandleTypeDef* pwmTimer, uint32_t pwmChannel, GPIO_TypeDef* dirPort, uint16_t dirPin,
     TIM_HandleTypeDef* encTimer, float kp, float ki, float kd,
@@ -44,10 +45,27 @@ public:
      _encoder_res(res), _sr_ratio(ratio), _interval(interval){}
 
 
+  /**
+   * 適用內建閉迴路之直流馬達，編碼器為PWM訊號
+   * @param pwmTimer PWM 輸出定時器
+   * @param pwmChannel PWM 輸出定時器通道
+   * @param dirPort 方向 GPIO 端口
+   * @param dirPin 方向 GPIO 引腳
+   * @param encTimer 編碼器定時器
+   * @param encChannel 編碼器定時器通道
+   * @param breakPort 煞車 GPIO 端口
+   * @param breakPin 煞車 GPIO 引腳
+   */
+
+  DC(TIM_HandleTypeDef* pwmTimer, uint32_t pwmChannel, GPIO_TypeDef* dirPort, uint16_t dirPin,
+	TIM_HandleTypeDef* encTimer, uint32_t encChannel, GPIO_TypeDef* breakPort, uint16_t breakPin)
+    :_pwmTimer(pwmTimer), _pwmChannel(pwmChannel),  _dirPort(dirPort), _dirPin(dirPin),
+	 _encTimer(encTimer), _encChannel(encChannel), _breakPort(breakPort), _breakPin(breakPin){
+  }
   
   void init(void);
   
-  void open_loop_pwm_output(float duty);
+  void open_loop_pwm_output(void);
   void close_loop_pwm_output(void);
   void close_loop_pos(float pos);
 
@@ -65,24 +83,31 @@ public:
   }
   float get_current_wheel_speed(void) const {return _current_wheel_speed;}
   float get_target_pwm(void) const {return _target_PWM;}
-
+  void set_duty(float duty){_duty = duty;}
 
 
 private:
 // REQUIRED PARAMS //
   TIM_HandleTypeDef* _pwmTimer = nullptr; 
-  uint32_t _pwmChannel = 0; 
+  uint32_t _pwmChannel = 999;
   GPIO_TypeDef* _dirPort = nullptr;
-  uint16_t _dirPin = 0;
+  uint16_t _dirPin = 999;
 
-// OPTIONAL PARAMS (PID Ctrl) //
+// OPTIONAL PARAMS //
+  GPIO_TypeDef* _encPort = nullptr;
+  uint16_t _encPin = 999;
   TIM_HandleTypeDef* _encTimer = nullptr;
+  uint32_t _encChannel = 999;
+  GPIO_TypeDef* _breakPort = nullptr;
+  uint16_t _breakPin = 999;
+
   float _kp=0.f, _ki=0.f, _kd=0.f;  /* PID */
   float _encoder_res=0.f;   /* Encoder resolution */
   float _sr_ratio=0.f;   /* Gear ratio */
   float _interval=0.f;   /* Time interval */ 
   float _error=0.f, _integral=0.f, _error_last=0.f;   /* Error parameters */ 
   bool _direction=false; /* Motor Spin Direction */
+  float _duty=0.f;
 
 // STATE PARAMS (Update Automatically) //
   float _previous_error=0.f;   /* Previous error */
@@ -91,9 +116,7 @@ private:
   int16_t _current_pulse=0;  /* Current pulse. Given by Interrupt. */
   float _target_PWM=0.f;  /* PWM target output. Fed to Interrupt. */
 
-  float _duty=0.f;
-
-  static constexpr float PWM_SCALE = 5000.f;
+  static constexpr float PWM_SCALE = 999.f;
 };
 
 

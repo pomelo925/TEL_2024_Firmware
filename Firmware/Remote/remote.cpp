@@ -89,13 +89,11 @@ void REMOTE::global_update(void){
             }
             // 如果 swb、swc 狀態改變，則發射
             if(Global.swb != this->swb_state_last){
-                Turret.shoot(_LEFT);
-                Turret.reload(_LEFT);
+                Turret.shoot_and_reload(_LEFT);
                 this->swb_state_last = Global.swb;
             }
             if(Global.swc != this->swc_state_last){
-                Turret.shoot(_RIGHT);
-                Turret.reload(_RIGHT);
+                Turret.shoot_and_reload(_RIGHT);
                 this->swc_state_last = Global.swc;
             }
     
@@ -295,7 +293,7 @@ void REMOTE::ppm_cnt_to_high(void) {
 
 /**
  * @brief DMA 中斷處理函式
- *  記得在 stm32h7xx_it.c 註解函數，否則會有 First Defined Here 的錯誤。
+ *  記得在 stm32h7xx_it.c 刪除函數，否則會有 First Defined Here 的錯誤。
  */
 extern "C" void DMA1_Stream0_IRQHandler(void) {
     HAL_DMA_IRQHandler(&hdma_tim17_ch1);

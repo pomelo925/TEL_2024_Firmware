@@ -14,6 +14,8 @@
 
 class SERVO{
 public:
+	static void init(void);
+
 /* TYPE 1 SERVO */
 	SERVO(TIM_HandleTypeDef* TIMx, uint8_t channel):
 		_TIMx(TIMx), _channel(channel){};
@@ -24,7 +26,8 @@ public:
 
 /* TYPE 2 SERVO */
 	SERVO(UART_HandleTypeDef* huart, uint16_t id):
-		_huart(huart), _id(id){};
+		_huart(huart), _id(id){
+	};
 
 	void UART_send_pos(uint16_t Position, uint16_t Time);
 
@@ -53,5 +56,6 @@ private:
 };
 
 extern SERVO ServoElevatorR, ServoElevatorL;
+extern SERVO ServoTriggerR, ServoTriggerL;
 
 #endif /* SERVO_HPP_ */

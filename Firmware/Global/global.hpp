@@ -19,12 +19,6 @@ public:
   float Swivel_L_Speed = 0.f;
   float Swivel_R_Speed = 0.f;
 
-  /* 砲台發射，開路控制， PWM 占空比*/
-  float launcher_R1_DUTY = 0.f;
-  float launcher_R2_DUTY = 0.f;
-  float launcher_L1_DUTY = 0.f;
-  float launcher_L2_DUTY = 0.f;
-
   /* 步進馬達位置 */
   uint8_t stepper_pos = 0;
 

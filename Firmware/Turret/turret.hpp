@@ -12,9 +12,8 @@
 class TURRET{
 public:
     void operate_with_default_mode(uint8_t device, int mode);
-    void shoot(int device);
+    void shoot_and_reload(int device);
     void fine_tune(uint8_t device, float swivel_speed, float elevation_speed);
-    void reload(uint8_t device);
 
 private:
     int _current_mode_left = 0;

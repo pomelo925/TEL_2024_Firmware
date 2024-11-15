@@ -15,14 +15,17 @@ SERVO ServoElevatorL(&htim24,3);
 
 
 /* TYPE 2 SERVO */
-extern UART_HandleTypeDef huart1;
-extern UART_HandleTypeDef huart3;
+extern UART_HandleTypeDef huart6;
+extern UART_HandleTypeDef huart10;
+
+SERVO ServoTriggerR(&huart6, 1);
+SERVO ServoTriggerL(&huart10, 3);
 
 
-SERVO ServoTriggerR(&huart1, 0);
-SERVO ServoTriggerL(&huart3, 0);
-
-
+void SERVO::init(void){
+	ServoTriggerL.UART_send_pos(1000, 500);
+	ServoTriggerR.UART_send_pos(1000, 500);
+}
 
 /**
  * @brief 開環控制，須進中斷。
@@ -73,7 +76,7 @@ void SERVO::_deg_to_ccr(void){
  */
 void SERVO::UART_send(uint8_t u8_data) {
 	uint8_t *u8_pointer = &u8_data;
-	HAL_UART_Transmit(&huart3, u8_pointer, 1, 100);
+	HAL_UART_Transmit(_huart, u8_pointer, 1, 100);
 
 	this->_checksum_calc += u8_data;
 }

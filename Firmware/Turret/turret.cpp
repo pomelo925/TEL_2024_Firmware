@@ -7,6 +7,7 @@
 
 #include <turret.hpp>
 #include <stepper.hpp>
+#include <servo.hpp>
 #include <dc.hpp>
 
 TURRET Turret;
@@ -24,28 +25,38 @@ void TURRET::operate_with_default_mode(uint8_t device, int mode){
 
         switch (mode){
         case 1:
-            DC_SwivelL.close_loop_pos(0);
-            DC_LauncherL1.open_loop_pwm_output(0);
-            DC_LauncherL2.open_loop_pwm_output(0);
-            
+        	DC_LauncherL1.set_duty(30);
+        	DC_LauncherL2.set_duty(30);
             break;
         
         case 2:
+        	DC_LauncherL1.set_duty(30);
+        	DC_LauncherL2.set_duty(30);
             break;
 
         case 4:
+        	DC_LauncherL1.set_duty(30);
+        	DC_LauncherL2.set_duty(30);
             break;
 
         case 5:
+        	DC_LauncherL1.set_duty(30);
+        	DC_LauncherL2.set_duty(30);
             break;
         
         case 7:
+        	DC_LauncherL1.set_duty(30);
+        	DC_LauncherL2.set_duty(30);
             break;
 
         case 8:
+        	DC_LauncherL1.set_duty(30);
+        	DC_LauncherL2.set_duty(30);
             break;
 
         default:
+        	DC_LauncherL1.set_duty(0);
+        	DC_LauncherL2.set_duty(0);
             break;
         }
     }
@@ -56,42 +67,59 @@ void TURRET::operate_with_default_mode(uint8_t device, int mode){
         
         switch (mode){
         case 1:
-            DC_SwivelR.close_loop_pos(0);
-            DC_LauncherR1.open_loop_pwm_output(0);
-            DC_LauncherR2.open_loop_pwm_output(0);
-            
+        	DC_LauncherR1.set_duty(30);
+        	DC_LauncherR2.set_duty(30);
             break;
         
         case 2:
+        	DC_LauncherR1.set_duty(30);
+        	DC_LauncherR2.set_duty(30);
             break;
 
         case 4:
+        	DC_LauncherR1.set_duty(30);
+        	DC_LauncherR2.set_duty(30);
             break;
 
         case 5:
+        	DC_LauncherR1.set_duty(30);
+        	DC_LauncherR2.set_duty(30);
             break;
         
         case 7:
+        	DC_LauncherR1.set_duty(30);
+        	DC_LauncherR2.set_duty(30);
             break;
 
         case 8:
+        	DC_LauncherR1.set_duty(30);
+        	DC_LauncherR2.set_duty(30);
             break;
 
         default:
+        	DC_LauncherR1.set_duty(0);
+        	DC_LauncherR2.set_duty(0);
             break;
         }
     }
     return;
 }
 
-void TURRET::shoot(int device){
+void TURRET::shoot_and_reload(int device){
     if(device == _LEFT){
-        // trigger
-
+    	ServoTriggerL.UART_send_pos(1050,4000);
+    	ServoTriggerL.UART_send_pos(1300,4000);
+    	ServoTriggerL.UART_send_pos(950,4000);
+    	Stepper_L.set_goal_pos(-5500);
+    	ServoTriggerL.UART_send_pos(1050,4000);
     }
     
     else if(device == _RIGHT){
-        // trigger
+    	ServoTriggerR.UART_send_pos(1050,4000);
+    	ServoTriggerR.UART_send_pos(1300,4000);
+    	ServoTriggerR.UART_send_pos(950,4000);
+    	Stepper_R.set_goal_pos(-5500);
+    	ServoTriggerR.UART_send_pos(1050,4000);
     }
 
     return;
@@ -108,12 +136,5 @@ void TURRET::fine_tune(uint8_t device, float swivel_speed, float elevation_speed
         // elevation
     }
     
-    return;
-}
-
-
-void TURRET::reload(uint8_t device){
-    if(device == _LEFT) Stepper_L.set_goal_pos(-5500);
-    else if(device == _RIGHT) Stepper_R.set_goal_pos(-5500);
     return;
 }
