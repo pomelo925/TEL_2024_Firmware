@@ -18,45 +18,52 @@ TURRET Turret;
  * @param device 左砲台或右砲台
  * @param mode 不同目標點的模式
  */
-void TURRET::operate_with_default_mode(uint8_t device, int mode){
+void TURRET::operate_with_default_mode(uint8_t device, uint8_t mode){
     // LEFT
     if(device == _LEFT){
         this->_current_mode_left = mode;
 
         switch (mode){
-        case 1:
-        	DC_LauncherL1.set_duty(30);
-        	DC_LauncherL2.set_duty(30);
+        case _LEFT_TOP:
+            ServoElevatorL.set_goal_deg(50);
+        	DC_LauncherL1.set_duty(100);
+        	DC_LauncherL2.set_duty(100);
             break;
         
-        case 2:
-        	DC_LauncherL1.set_duty(30);
-        	DC_LauncherL2.set_duty(30);
+        case _RIGHT_TOP:
+            ServoElevatorL.set_goal_deg(50);
+        	DC_LauncherL1.set_duty(100);
+        	DC_LauncherL2.set_duty(100);
             break;
 
-        case 4:
-        	DC_LauncherL1.set_duty(30);
-        	DC_LauncherL2.set_duty(30);
+        case _LEFT_MIDDLE:
+            ServoElevatorL.set_goal_deg(50);
+        	DC_LauncherL1.set_duty(100);
+        	DC_LauncherL2.set_duty(100);
             break;
 
-        case 5:
-        	DC_LauncherL1.set_duty(30);
-        	DC_LauncherL2.set_duty(30);
+        case _RIGHT_MIDDLE:
+            ServoElevatorL.set_goal_deg(50);
+        	DC_LauncherL1.set_duty(100);
+        	DC_LauncherL2.set_duty(100);
             break;
         
-        case 7:
-        	DC_LauncherL1.set_duty(30);
-        	DC_LauncherL2.set_duty(30);
+        case _LEFT_BOTTOM:
+            ServoElevatorL.set_goal_deg(50);
+        	DC_LauncherL1.set_duty(100);
+        	DC_LauncherL2.set_duty(100);
             break;
 
-        case 8:
-        	DC_LauncherL1.set_duty(30);
-        	DC_LauncherL2.set_duty(30);
+        case _RIGHT_BOTTOM:
+            ServoElevatorL.set_goal_deg(50);
+        	DC_LauncherL1.set_duty(100);
+        	DC_LauncherL2.set_duty(100);
             break;
 
         default:
-        	DC_LauncherL1.set_duty(0);
-        	DC_LauncherL2.set_duty(0);
+            // ServoElevatorL.set_goal_deg(0);
+        	// DC_LauncherL1.set_duty(0);
+        	// DC_LauncherL2.set_duty(0);
             break;
         }
     }
@@ -66,65 +73,170 @@ void TURRET::operate_with_default_mode(uint8_t device, int mode){
         this->_current_mode_right = mode;
         
         switch (mode){
-        case 1:
-        	DC_LauncherR1.set_duty(30);
-        	DC_LauncherR2.set_duty(30);
+        case _LEFT_TOP:
+            ServoElevatorR.set_goal_deg(50);
+        	DC_LauncherR1.set_duty(100);
+        	DC_LauncherR2.set_duty(100);
             break;
         
-        case 2:
-        	DC_LauncherR1.set_duty(30);
-        	DC_LauncherR2.set_duty(30);
+        case _RIGHT_TOP:
+            ServoElevatorR.set_goal_deg(50);
+        	DC_LauncherR1.set_duty(100);
+        	DC_LauncherR2.set_duty(100);
             break;
 
-        case 4:
-        	DC_LauncherR1.set_duty(30);
-        	DC_LauncherR2.set_duty(30);
+        case _LEFT_MIDDLE:
+            ServoElevatorR.set_goal_deg(50);
+        	DC_LauncherR1.set_duty(100);
+        	DC_LauncherR2.set_duty(100);
             break;
 
-        case 5:
-        	DC_LauncherR1.set_duty(30);
-        	DC_LauncherR2.set_duty(30);
+        case _RIGHT_MIDDLE:
+            ServoElevatorR.set_goal_deg(50);
+        	DC_LauncherR1.set_duty(100);
+        	DC_LauncherR2.set_duty(100);
             break;
         
-        case 7:
-        	DC_LauncherR1.set_duty(30);
-        	DC_LauncherR2.set_duty(30);
+        case _LEFT_BOTTOM:
+            ServoElevatorR.set_goal_deg(50);
+        	DC_LauncherR1.set_duty(100);
+        	DC_LauncherR2.set_duty(100);
             break;
 
-        case 8:
-        	DC_LauncherR1.set_duty(30);
-        	DC_LauncherR2.set_duty(30);
+        case _RIGHT_BOTTOM:
+            ServoElevatorR.set_goal_deg(50);
+        	DC_LauncherR1.set_duty(100);
+        	DC_LauncherR2.set_duty(100);
             break;
 
         default:
-        	DC_LauncherR1.set_duty(0);
-        	DC_LauncherR2.set_duty(0);
+            // ServoElevatorR.set_goal_deg(0);
+        	// DC_LauncherR1.set_duty(0);
+        	// DC_LauncherR2.set_duty(0);
             break;
         }
     }
     return;
 }
 
-void TURRET::shoot_and_reload(int device){
-    if(device == _LEFT){
-    	ServoTriggerL.UART_send_pos(1050,4000);
-    	ServoTriggerL.UART_send_pos(1300,4000);
-    	ServoTriggerL.UART_send_pos(950,4000);
-    	Stepper_L.set_goal_pos(-5500);
-    	ServoTriggerL.UART_send_pos(1050,4000);
-    }
+/**
+ * @brief 左砲台狀態機，發射&填彈
+ */
+void TURRET::_execute_shoot_and_reload_L(void){
+    switch (this->_step_L){
+    case 0:
+        ServoTriggerL.UART_send_pos(1050,4000);
+        this->_step_L = 1;
+        this->_ms_L = 0;
+        break;
     
-    else if(device == _RIGHT){
-    	ServoTriggerR.UART_send_pos(1050,4000);
-    	ServoTriggerR.UART_send_pos(1300,4000);
-    	ServoTriggerR.UART_send_pos(950,4000);
-    	Stepper_R.set_goal_pos(-5500);
-    	ServoTriggerR.UART_send_pos(1050,4000);
+    case 1:
+        if (this->_ms_L >= 1000) { // 等待 1 秒
+            ServoTriggerL.UART_send_pos(1300, 4000);
+            this->_step_L = 2;
+            this->_ms_L = 0;
+        }
+        break;
+    
+    case 2:
+        if (this->_ms_L >= 500) { // 等待 0.5 秒
+            ServoTriggerL.UART_send_pos(950, 4000);
+            Stepper_L.set_goal_pos(-5500);
+            this->_step_L = 3;
+            this->_ms_L = 0;
+        }
+        break;
+
+    case 3:
+        if (this->_ms_L >= 1000) { // 等待 1 秒
+            ServoTriggerL.UART_send_pos(1050, 4000);
+            this->_step_L = 0;
+            this->_ms_L = 0;
+            this->_task_complete_L = true;
+        }
+        break;
+    
+    default:
+        break;
+
+    }
+    return;
+}
+
+/**
+ * @brief 右砲台狀態機，發射&填彈
+ */
+void TURRET::_execute_shoot_and_reload_R(void){
+    switch (this->_step_R){
+    case 0:
+        ServoTriggerR.UART_send_pos(1050,4000);
+        this->_step_R = 1;
+        this->_ms_R = 0;
+        break;
+
+    case 1:
+        if (this->_step_R >= 1000) { // 等待 1 秒
+            ServoTriggerR.UART_send_pos(1300, 4000);
+            this->_step_R = 2;
+            this->_ms_R = 0;
+        }
+        break;
+
+    case 2:
+        if (this->_step_R >= 500) { // 等待 0.5 秒
+            ServoTriggerR.UART_send_pos(950, 4000);
+            Stepper_R.set_goal_pos(-5500);
+            this->_step_R = 3;
+            this->_ms_R = 0;
+        }
+        break;
+    
+
+    case 3:
+        if (this->_step_R >= 1000) { // 等待 1 秒
+            ServoTriggerR.UART_send_pos(1050, 4000);
+            this->_step_R = 0;
+            this->_ms_R = 0;
+            _task_complete_R = true;
+        }
+        break;
+    
+    default:
+        break;
+    
+    }
+    return;
+}
+
+
+/**
+ * @brief 砲台發射&填彈
+ */
+void TURRET::shoot_and_reload(uint8_t device){
+    if (device == _LEFT){
+        if(!this->_task_complete_L) this->_execute_shoot_and_reload_L();
+        else {
+            this->_task_complete_L = false;
+            this->_step_L = 0;
+            this->_ms_L = 0;
+        }
+    }
+    else if (device == _RIGHT){
+        if(!this->_task_complete_R) this->_execute_shoot_and_reload_R();
+        else {
+            this->_task_complete_R = false;
+            this->_step_R = 0;
+            this->_ms_R = 0;
+        }
     }
 
     return;
 }
 
+
+/**
+ * @brief 細調砲台位置
+ */
 void TURRET::fine_tune(uint8_t device, float swivel_speed, float elevation_speed){
     if(device == _LEFT){
         // swivel
@@ -136,5 +248,15 @@ void TURRET::fine_tune(uint8_t device, float swivel_speed, float elevation_speed
         // elevation
     }
     
+    return;
+}
+
+
+/**
+ * @brief 更新發射填彈的外部時鐘計算
+ */
+void TURRET::update_shoot_and_reload_timer(void){
+    if(!this->_task_complete_L) this->_ms_L++;
+    if(!this->_task_complete_R) this->_ms_R++;
     return;
 }

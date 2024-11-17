@@ -11,10 +11,6 @@
 
 class GLOBAL {
 public:
-  /* 底盤運動速度 */
-  float Chassis_X_Speed = 0.f;
-  float Chassis_Theta_Speed = 0.f;
-
   /* 砲台轉盤速度 */
   float Swivel_L_Speed = 0.f;
   float Swivel_R_Speed = 0.f;

@@ -63,6 +63,7 @@ public:
 	 _encTimer(encTimer), _encChannel(encChannel), _breakPort(breakPort), _breakPin(breakPin){
   }
   
+  static void freeze_launcher(void);
   void init(void);
   
   void open_loop_pwm_output(void);

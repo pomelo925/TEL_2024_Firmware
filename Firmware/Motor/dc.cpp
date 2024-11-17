@@ -164,6 +164,20 @@ void DC::update_target_PWM(void) {
 
 
 /**
+ * @brief launcher 馬達靜止
+ *
+ */
+void DC::freeze_launcher(void){
+  DC_LauncherL1.set_duty(0);
+  DC_LauncherL2.set_duty(0);
+  DC_LauncherR1.set_duty(0);
+  DC_LauncherR2.set_duty(0);
+
+  return;
+}
+
+
+/**
  * @brief DMA 中斷處理函式
  *  記得在 stm32h7xx_it.c 刪除函數，否則會有 First Defined Here 的錯誤。
  */

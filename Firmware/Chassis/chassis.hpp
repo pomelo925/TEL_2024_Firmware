@@ -9,7 +9,7 @@
 
 class CHASSIS{
 public:
-  void run(float GLOBAL_x, float GLOBAL_theta);
+  void setSpeed(float GLOBAL_x, float GLOBAL_theta);
   void moveTo(float x, float y);
   
 private:

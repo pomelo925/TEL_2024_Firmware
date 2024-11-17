@@ -35,23 +35,26 @@ void SERVO::open_loop_step(void){
   this->_deg_to_ccr();
 
   // 輸出 PWM
-  switch(this->_channel){
-    case 1:
-      __HAL_TIM_SET_COMPARE(this->_TIMx, TIM_CHANNEL_1, this->_goal_ccr);
-      break;
-    case 2:
-      __HAL_TIM_SET_COMPARE(this->_TIMx, TIM_CHANNEL_2, this->_goal_ccr);
-      break;
-    case 3:
-      __HAL_TIM_SET_COMPARE(this->_TIMx, TIM_CHANNEL_3, this->_goal_ccr);
-      break;
-    case 4:
-      __HAL_TIM_SET_COMPARE(this->_TIMx, TIM_CHANNEL_4, this->_goal_ccr);
-      break;
 
-    default:
-      break;
-  }
+  // switch(this->_channel){
+  //   case 1:
+  //     __HAL_TIM_SET_COMPARE(this->_TIMx, TIM_CHANNEL_1, this->_goal_ccr);
+  //     break;
+  //   case 2:
+  //     __HAL_TIM_SET_COMPARE(this->_TIMx, TIM_CHANNEL_2, this->_goal_ccr);
+  //     break;
+  //   case 3:
+  //     __HAL_TIM_SET_COMPARE(this->_TIMx, TIM_CHANNEL_3, this->_goal_ccr);
+  //     break;
+  //   case 4:
+  //     __HAL_TIM_SET_COMPARE(this->_TIMx, TIM_CHANNEL_4, this->_goal_ccr);
+  //     break;
+
+  //   default:
+  //     break;
+  // }
+
+  __HAL_TIM_SET_COMPARE(this->_TIMx, this->_channel, this->_goal_ccr);
 
   return;
 }

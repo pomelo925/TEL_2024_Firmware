@@ -13,9 +13,10 @@ CHASSIS Chassis;
 
 /**
  * @brief 底盤運作，追目標車速，並回饋當前車速 (m/s)(rad/s)。
- * @param void
+ * @param GLOBAL_x X 軸方向速度 (m/s)
+ * @param GLOBAL_theta 旋轉速度 (rad/s)
  */
-void CHASSIS::run(float GLOBAL_x, float GLOBAL_theta){
+void CHASSIS::setSpeed(float GLOBAL_x, float GLOBAL_theta){
   this->TARGET_SPEED.x = GLOBAL_x;
   this->TARGET_SPEED.theta = GLOBAL_theta;
 

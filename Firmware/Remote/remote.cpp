@@ -9,6 +9,7 @@
 #include <chassis.hpp>
 #include <global.hpp>
 #include <turret.hpp>
+#include <dc.hpp>
 
 extern TIM_HandleTypeDef htim17;
 extern DMA_HandleTypeDef hdma_tim17_ch1;
@@ -31,61 +32,83 @@ void REMOTE::global_update(void){
     switch(Global.mode){
         // swa = up, swd = up => 手動底盤模式，CH1~2粗調，CH3~4精調
         case 1:
-            _case2_flag = false;
+        	DC::freeze_launcher();
+            this->_case2_flag = false;
 
             if( fabs(this->ppmHigh[0]-_PPM_JOYSTICK_DUTY_DEFAULT) > 100 ||
                 fabs(this->ppmHigh[1]-_PPM_JOYSTICK_DUTY_DEFAULT) > 100){
-				Global.Chassis_X_Speed = REMOTE::joystick_mapping(this->ppmHigh[1], -1.2f, 1.2f);
-				Global.Chassis_Theta_Speed = REMOTE::joystick_mapping(this->ppmHigh[0], -0.8f, 0.8f);
+            	Chassis.setSpeed(REMOTE::joystick_mapping(this->ppmHigh[1], 1.2f, -1.2f),
+            					REMOTE::joystick_mapping(this->ppmHigh[0], 1.f, -1.f));
 				break;
             }
-            Global.Chassis_X_Speed = REMOTE::joystick_mapping(this->ppmHigh[3], -0.2f, 0.2f);
-            Global.Chassis_Theta_Speed = REMOTE::joystick_mapping(this->ppmHigh[2], -0.2f, 0.2f);
+
+        	Chassis.setSpeed(REMOTE::joystick_mapping(this->ppmHigh[3], 0.2f, -0.2f),
+        					REMOTE::joystick_mapping(this->ppmHigh[2], 0.5f, -0.5f));
             break;
         
         // swa = up, swd = down => 自動砲台模式，CH1~2左砲，CH3~4右砲，swb、swc改變就發射        
         case 2:
             // 先判斷左砲狀態
             switch(REMOTE::joystick_state(_LEFT)){
+                // 特定位置、速度
                 case _LEFT_TOP:
-                    Turret.operate_with_default_mode(_LEFT, 1); break;
+                    Turret.operate_with_default_mode(_LEFT, _LEFT_TOP); break;
                 case _RIGHT_TOP:
-                    Turret.operate_with_default_mode(_LEFT, 2); break;
+                    Turret.operate_with_default_mode(_LEFT, _RIGHT_TOP); break;
                 case _LEFT_MIDDLE:
-                    Turret.operate_with_default_mode(_LEFT, 4); break;
+                    Turret.operate_with_default_mode(_LEFT, _LEFT_MIDDLE); break;
                 case _RIGHT_MIDDLE:
-                    Turret.operate_with_default_mode(_LEFT, 5); break;
+                    Turret.operate_with_default_mode(_LEFT, _RIGHT_MIDDLE); break;
                 case _LEFT_BOTTOM: 
-                    Turret.operate_with_default_mode(_LEFT, 7); break;
+                    Turret.operate_with_default_mode(_LEFT, _LEFT_BOTTOM); break;
                 case _RIGHT_BOTTOM:
-                    Turret.operate_with_default_mode(_LEFT, 8); break;
+                    Turret.operate_with_default_mode(_LEFT, _RIGHT_BOTTOM); break;
+                
+                // 待機狀態
+                case _MIDDLE_TOP:
+                    Turret.operate_with_default_mode(_LEFT, _MIDDLE_TOP); break;
+                case _MIDDLE_MIDDLE:
+                    Turret.operate_with_default_mode(_LEFT, _MIDDLE_MIDDLE); break;
+                case _MIDDLE_BOTTOM:
+                    Turret.operate_with_default_mode(_LEFT, _MIDDLE_BOTTOM); break;
+
                 default:
                     break;
             }
 
             // 再判斷右砲狀態 
             switch(REMOTE::joystick_state(_RIGHT)){
+                // 特定位置、速度
                 case _LEFT_TOP:
-                    Turret.operate_with_default_mode(_RIGHT, 2); break;
+                    Turret.operate_with_default_mode(_RIGHT, _LEFT_TOP); break;
                 case _RIGHT_TOP:
-                    Turret.operate_with_default_mode(_RIGHT, 2); break;
+                    Turret.operate_with_default_mode(_RIGHT, _RIGHT_TOP); break;
                 case _LEFT_MIDDLE:
-                    Turret.operate_with_default_mode(_RIGHT, 4); break;
+                    Turret.operate_with_default_mode(_RIGHT, _LEFT_MIDDLE); break;
                 case _RIGHT_MIDDLE:
-                    Turret.operate_with_default_mode(_RIGHT, 5); break;
+                    Turret.operate_with_default_mode(_RIGHT, _RIGHT_MIDDLE); break;
                 case _LEFT_BOTTOM: 
-                    Turret.operate_with_default_mode(_RIGHT, 7); break;
+                    Turret.operate_with_default_mode(_RIGHT, _LEFT_BOTTOM); break;
                 case _RIGHT_BOTTOM:
-                    Turret.operate_with_default_mode(_RIGHT, 8); break;
+                    Turret.operate_with_default_mode(_RIGHT, _RIGHT_BOTTOM); break;
+                                    
+                // 待機狀態
+                case _MIDDLE_TOP:
+                    Turret.operate_with_default_mode(_RIGHT, _MIDDLE_TOP); break;
+                case _MIDDLE_MIDDLE:
+                    Turret.operate_with_default_mode(_RIGHT, _MIDDLE_MIDDLE); break;
+                case _MIDDLE_BOTTOM:
+                    Turret.operate_with_default_mode(_RIGHT, _MIDDLE_BOTTOM); break;
+
                 default:
                     break;
             }
             
             // 進入此模式後，先更新當前 swb、swc 狀態
-            if(!_case2_flag) {
+            if(!this->_case2_flag) {
                 this->swb_state_last = Global.swb;
                 this->swc_state_last = Global.swc;
-                _case2_flag = true;
+                this->_case2_flag = true;
             }
             // 如果 swb、swc 狀態改變，則發射
             if(Global.swb != this->swb_state_last){
@@ -101,7 +124,8 @@ void REMOTE::global_update(void){
         
         // swa = down, swd = up => 自動底盤模式，搖桿 swa ~ swd 選模式
         case 3:
-            _case2_flag = false;
+        	DC::freeze_launcher();
+        	this->_case2_flag = false;
 
             // 開頭：左，結束：左
             if(Global.swb == _SWITCH_UP && Global.swc == _SWITCH_UP) Chassis.moveTo(20.f, 20.f);
@@ -121,7 +145,7 @@ void REMOTE::global_update(void){
 
         // swa = down, swd = down => 手動砲台模式，微調左右砲位置
         case 4:
-            _case2_flag = false;
+        	this->_case2_flag = false;
 
             Turret.fine_tune(_LEFT, REMOTE::joystick_mapping(this->ppmHigh[0], -1.f, 1.f), REMOTE::joystick_mapping(this->ppmHigh[1], -1.f, 1.f));
             Turret.fine_tune(_RIGHT, REMOTE::joystick_mapping(this->ppmHigh[2], -1.f, 1.f), REMOTE::joystick_mapping(this->ppmHigh[3], -1.f, 1.f));
@@ -189,7 +213,7 @@ uint8_t REMOTE::joystick_state(uint8_t dir){
     const static int LOW = 1200, HIGH = 1800;
 
     // 檢查左搖桿
-    if(dir == this->_LEFT){
+    if(dir == _LEFT){
         if(this->ppmHigh[0] < LOW){
             if(this->ppmHigh[1] > HIGH) return this->_LEFT_TOP;
             if(this->ppmHigh[1] < LOW) return this->_LEFT_BOTTOM;
@@ -208,21 +232,21 @@ uint8_t REMOTE::joystick_state(uint8_t dir){
     }
 
     // 檢查右搖桿
-    if(dir == this->_RIGHT){
-        if(this->ppmHigh[3] < LOW){
-            if(this->ppmHigh[2] > HIGH) return this->_LEFT_TOP;
-            if(this->ppmHigh[2] < LOW) return this->_LEFT_BOTTOM;
+    else if(dir == _RIGHT){
+        if(this->ppmHigh[2] < LOW){
+            if(this->ppmHigh[3] > HIGH) return this->_LEFT_TOP;
+            if(this->ppmHigh[3] < LOW) return this->_LEFT_BOTTOM;
             return this->_LEFT_MIDDLE;
         }
 
-        if(this->ppmHigh[3] > HIGH){
-            if(this->ppmHigh[2] > HIGH) return this->_RIGHT_TOP;
-            if(this->ppmHigh[2] < LOW) return this->_RIGHT_BOTTOM;
+        if(this->ppmHigh[2] > HIGH){
+            if(this->ppmHigh[3] > HIGH) return this->_RIGHT_TOP;
+            if(this->ppmHigh[3] < LOW) return this->_RIGHT_BOTTOM;
             return this->_RIGHT_MIDDLE;
         }
 
-        if(this->ppmHigh[2] > HIGH) return this->_MIDDLE_TOP;
-        if(this->ppmHigh[2] < LOW) return this->_MIDDLE_BOTTOM;
+        if(this->ppmHigh[3] > HIGH) return this->_MIDDLE_TOP;
+        if(this->ppmHigh[3] < LOW) return this->_MIDDLE_BOTTOM;
         return this->_MIDDLE_MIDDLE;
     }
 

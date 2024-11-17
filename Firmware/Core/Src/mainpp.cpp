@@ -8,7 +8,6 @@
 
 #include <mainpp.h>
 #include <remote.hpp>
-#include <mission.hpp>
 #include <dc.hpp>
 #include <global.hpp>
 #include <interrupt.hpp>

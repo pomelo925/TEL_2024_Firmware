@@ -11,6 +11,7 @@
 #include <dc.hpp>
 #include <chassis.hpp>
 #include <servo.hpp>
+#include <turret.hpp>
 
 
 extern TIM_HandleTypeDef htim6;
@@ -36,7 +37,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	// TIM16 : 1000hz
 	if(htim->Instance == TIM16){
 		/* DC MOTOR：底盤  */
-		Chassis.run(Global.Chassis_X_Speed, Global.Chassis_Theta_Speed);
 		DC_ChassisL.close_loop_pwm_output();
 		DC_ChassisR.close_loop_pwm_output();
 
@@ -51,11 +51,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_1, GPIO_PIN_RESET);
 		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_0, GPIO_PIN_SET);
 
-		/* SERVO：板機 */
 
-
-		/* SERVO：仰角 */
-		ServoTriggerR.UART_send_pos(1300, 1000);
+		/* Turret：更新發射填彈的外部時鐘計算 */
+		Turret.update_shoot_and_reload_timer();
 	}
 
 	return;
