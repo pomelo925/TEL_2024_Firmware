@@ -41,7 +41,6 @@ void main_function(void){
 		 * Remote.MODE = false 時，GLOBAL 則可從 live expression 調整
 		 */
 
-		Remote.ppmHigh_to_global();
 	}
 	return;
 }

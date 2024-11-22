@@ -56,7 +56,6 @@
 
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_tim1_ch1;
-extern DMA_HandleTypeDef hdma_tim4_ch1;
 extern DMA_HandleTypeDef hdma_tim17_ch1;
 extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim16;
@@ -214,7 +213,6 @@ void RCC_IRQHandler(void)
 
   /* USER CODE END RCC_IRQn 1 */
 }
-
 
 /**
   * @brief This function handles TIM6 global interrupt, DAC1_CH1 and DAC1_CH2 underrun error interrupts.

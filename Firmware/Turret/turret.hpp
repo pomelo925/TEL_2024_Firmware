@@ -13,7 +13,7 @@ class TURRET{
 public:
     void operate_with_default_mode(uint8_t device, uint8_t mode);
 		void update_shoot_and_reload_timer(void);
-    void shoot_and_reload(uint8_t device);
+    void shoot_and_reload(uint8_t device, bool trigger_once);
     void fine_tune(uint8_t device, float swivel_speed, float elevation_speed);
 
 private:
@@ -23,8 +23,9 @@ private:
 	// shoot_and_reload() 狀態機變數
 		int _step_L = 0, _step_R = 0; 
     uint32_t _ms_L = 0, _ms_R = 0;
+		bool _working_R = false, _working_L = false;
 
-    bool _task_complete_L = true, _task_complete_R = true;
+    bool _work_unit_done_L = false, _work_unit_done_R = false;
 		void _execute_shoot_and_reload_L(void);
     void _execute_shoot_and_reload_R(void);
 

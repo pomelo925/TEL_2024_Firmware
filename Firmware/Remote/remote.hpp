@@ -27,10 +27,10 @@ public:
 
 	void ppm_raw_to_cnt(void);
 	void ppm_cnt_to_high(void);
-	void ppmHigh_to_global(void);
+	void ppm_high_to_switch_and_mode(void);
 
 	uint8_t joystick_state(uint8_t dir);
-	void global_update(void);
+	void mode_execute(void);
 
 private:
   // PPM 訊號間隔判定（單位：us）
@@ -46,8 +46,18 @@ private:
 	const uint16_t _PPM_JOYSTICK_DUTY_DEFAULT = 1508;
 
 	// case 2 (A0D1) 啟動 Flag，切換模式後需重新啟動
-	bool _case2_flag = false;
+	bool _under_case2 = false;
 	uint8_t swb_state_last = 0, swc_state_last = 0;
+
+
+	// 當前 Switch 撥桿狀態
+	uint8_t _swa = _SWITCH_UP;
+  uint8_t _swb = _SWITCH_UP;
+  uint8_t _swc = _SWITCH_UP;
+  uint8_t _swd = _SWITCH_UP;
+
+	// Switch 撥桿狀態對應模式
+	uint8_t _mode = 0;
 
 	// Switch 撥桿狀態
 	enum SWITCH{

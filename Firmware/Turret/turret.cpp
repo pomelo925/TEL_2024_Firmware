@@ -119,28 +119,29 @@ void TURRET::operate_with_default_mode(uint8_t device, uint8_t mode){
     return;
 }
 
+
 /**
  * @brief 左砲台狀態機，發射&填彈
  */
 void TURRET::_execute_shoot_and_reload_L(void){
     switch (this->_step_L){
     case 0:
-        ServoTriggerL.UART_send_pos(1050,4000);
+        ServoTriggerL.UART_send_pos(1100,4000);
         this->_step_L = 1;
         this->_ms_L = 0;
         break;
     
     case 1:
         if (this->_ms_L >= 1000) { // 等待 1 秒
-            ServoTriggerL.UART_send_pos(1300, 4000);
+            ServoTriggerL.UART_send_pos(1250, 500);
             this->_step_L = 2;
             this->_ms_L = 0;
         }
         break;
     
     case 2:
-        if (this->_ms_L >= 500) { // 等待 0.5 秒
-            ServoTriggerL.UART_send_pos(950, 4000);
+        if (this->_ms_L >= 1000) { // 等待 1 秒
+            ServoTriggerL.UART_send_pos(950, 500);
             Stepper_L.set_goal_pos(-5500);
             this->_step_L = 3;
             this->_ms_L = 0;
@@ -149,10 +150,11 @@ void TURRET::_execute_shoot_and_reload_L(void){
 
     case 3:
         if (this->_ms_L >= 1000) { // 等待 1 秒
-            ServoTriggerL.UART_send_pos(1050, 4000);
+        	Stepper_L.set_goal_pos(3000);
+            ServoTriggerL.UART_send_pos(1100, 500);
             this->_step_L = 0;
             this->_ms_L = 0;
-            this->_task_complete_L = true;
+            this->_work_unit_done_L = true;
         }
         break;
     
@@ -163,28 +165,29 @@ void TURRET::_execute_shoot_and_reload_L(void){
     return;
 }
 
+
 /**
  * @brief 右砲台狀態機，發射&填彈
  */
 void TURRET::_execute_shoot_and_reload_R(void){
     switch (this->_step_R){
     case 0:
-        ServoTriggerR.UART_send_pos(1050,4000);
+        ServoTriggerR.UART_send_pos(1050,500);
         this->_step_R = 1;
         this->_ms_R = 0;
         break;
 
     case 1:
-        if (this->_step_R >= 1000) { // 等待 1 秒
-            ServoTriggerR.UART_send_pos(1300, 4000);
+        if (this->_ms_R >= 1000) { // 等待 1 秒
+            ServoTriggerR.UART_send_pos(1300, 500);
             this->_step_R = 2;
             this->_ms_R = 0;
         }
         break;
 
     case 2:
-        if (this->_step_R >= 500) { // 等待 0.5 秒
-            ServoTriggerR.UART_send_pos(950, 4000);
+        if (this->_ms_R >= 1000) { // 等待 1 秒
+            ServoTriggerR.UART_send_pos(950, 500);
             Stepper_R.set_goal_pos(-5500);
             this->_step_R = 3;
             this->_ms_R = 0;
@@ -193,11 +196,11 @@ void TURRET::_execute_shoot_and_reload_R(void){
     
 
     case 3:
-        if (this->_step_R >= 1000) { // 等待 1 秒
-            ServoTriggerR.UART_send_pos(1050, 4000);
+        if (this->_ms_R >= 1000) { // 等待 1 秒
+            ServoTriggerR.UART_send_pos(1050, 500);
             this->_step_R = 0;
             this->_ms_R = 0;
-            _task_complete_R = true;
+            this->_work_unit_done_R = true;
         }
         break;
     
@@ -211,23 +214,44 @@ void TURRET::_execute_shoot_and_reload_R(void){
 
 /**
  * @brief 砲台發射&填彈
+ * @param device 左砲台或右砲台
+ * @param trigger_once 觸發一次
  */
-void TURRET::shoot_and_reload(uint8_t device){
-    if (device == _LEFT){
-        if(!this->_task_complete_L) this->_execute_shoot_and_reload_L();
-        else {
-            this->_task_complete_L = false;
-            this->_step_L = 0;
-            this->_ms_L = 0;
+void TURRET::shoot_and_reload(uint8_t device, bool trigger_once){
+    // 改變工作狀態
+    if(trigger_once){
+        if(device == _LEFT) {
+            this->_working_L = true;
+            this->_work_unit_done_L = false;
+        }
+        if(device == _RIGHT) {
+            this->_working_R = true;
+            this->_work_unit_done_R = false;
         }
     }
-    else if (device == _RIGHT){
-        if(!this->_task_complete_R) this->_execute_shoot_and_reload_R();
+
+    // 檢查是否有工作
+    if(!this->_working_L && !this->_working_R) return;
+
+    // 有工作，執行狀態機
+    if (device == _LEFT && this->_working_L){
+        if(!this->_work_unit_done_L) this->_execute_shoot_and_reload_L();
         else {
-            this->_task_complete_R = false;
+            this->_step_L = 0;
+            this->_ms_L = 0;
+            this->_working_L = false;
+        }
+        return;
+    }
+
+    if (device == _RIGHT && this->_working_R){
+        if(!this->_work_unit_done_R) this->_execute_shoot_and_reload_R();
+        else {
             this->_step_R = 0;
             this->_ms_R = 0;
+            this->_working_R = false;
         }
+        return;
     }
 
     return;
@@ -240,6 +264,7 @@ void TURRET::shoot_and_reload(uint8_t device){
 void TURRET::fine_tune(uint8_t device, float swivel_speed, float elevation_speed){
     if(device == _LEFT){
         // swivel
+        DC_SwivelL.set_target_wheel_speed(swivel_speed);
         // elevation
     }
     
@@ -256,7 +281,7 @@ void TURRET::fine_tune(uint8_t device, float swivel_speed, float elevation_speed
  * @brief 更新發射填彈的外部時鐘計算
  */
 void TURRET::update_shoot_and_reload_timer(void){
-    if(!this->_task_complete_L) this->_ms_L++;
-    if(!this->_task_complete_R) this->_ms_R++;
+    if(!this->_work_unit_done_L) this->_ms_L++;
+    if(!this->_work_unit_done_R) this->_ms_R++;
     return;
 }

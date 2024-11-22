@@ -22,18 +22,20 @@ REMOTE Remote;
 void REMOTE::init(){
     __HAL_DMA_ENABLE_IT(&hdma_tim17_ch1, DMA_IT_TC);
 	HAL_TIM_IC_Start_DMA(&htim17, TIM_CHANNEL_1, this->ppmRaw, 18);
+    
+    return;
 }
 
 
 /** 
- * @brief Global 更新函數，根據 Global.mode。
+ * @brief 根據模式執行。
  */
-void REMOTE::global_update(void){
-    switch(Global.mode){
+void REMOTE::mode_execute(void){
+    switch(this->_mode){
         // swa = up, swd = up => 手動底盤模式，CH1~2粗調，CH3~4精調
-        case 1:
+        case 1: {
         	DC::freeze_launcher();
-            this->_case2_flag = false;
+            this->_under_case2 = false;
 
             if( fabs(this->ppmHigh[0]-_PPM_JOYSTICK_DUTY_DEFAULT) > 100 ||
                 fabs(this->ppmHigh[1]-_PPM_JOYSTICK_DUTY_DEFAULT) > 100){
@@ -45,9 +47,10 @@ void REMOTE::global_update(void){
         	Chassis.setSpeed(REMOTE::joystick_mapping(this->ppmHigh[3], 0.2f, -0.2f),
         					REMOTE::joystick_mapping(this->ppmHigh[2], 0.5f, -0.5f));
             break;
-        
+        }
+
         // swa = up, swd = down => 自動砲台模式，CH1~2左砲，CH3~4右砲，swb、swc改變就發射        
-        case 2:
+        case 2: {
             // 先判斷左砲狀態
             switch(REMOTE::joystick_state(_LEFT)){
                 // 特定位置、速度
@@ -105,52 +108,60 @@ void REMOTE::global_update(void){
             }
             
             // 進入此模式後，先更新當前 swb、swc 狀態
-            if(!this->_case2_flag) {
-                this->swb_state_last = Global.swb;
-                this->swc_state_last = Global.swc;
-                this->_case2_flag = true;
+            if(!this->_under_case2) {
+                this->swb_state_last = this->_swb;
+                this->swc_state_last = this->_swc;
+                this->_under_case2 = true;
             }
-            // 如果 swb、swc 狀態改變，則發射
-            if(Global.swb != this->swb_state_last){
-                Turret.shoot_and_reload(_LEFT);
-                this->swb_state_last = Global.swb;
-            }
-            if(Global.swc != this->swc_state_last){
-                Turret.shoot_and_reload(_RIGHT);
-                this->swc_state_last = Global.swc;
-            }
+
+            // 如果 swb 狀態改變，則發射
+            const bool trigger_once_left = ( this->_swb != this->swb_state_last );
+            Turret.shoot_and_reload(_LEFT, trigger_once_left);
+
+            this->swb_state_last = this->_swb;
+            
+            
+            // 如果 swc 狀態改變，則發射
+            const bool trigger_once_right = ( this->_swc != this->swc_state_last );
+            Turret.shoot_and_reload(_RIGHT, trigger_once_right);
+
+            this->swc_state_last = this->_swc;
     
             break;
+        }
         
+
         // swa = down, swd = up => 自動底盤模式，搖桿 swa ~ swd 選模式
-        case 3:
+        case 3: {
         	DC::freeze_launcher();
-        	this->_case2_flag = false;
+        	this->_under_case2 = false;
 
             // 開頭：左，結束：左
-            if(Global.swb == _SWITCH_UP && Global.swc == _SWITCH_UP) Chassis.moveTo(20.f, 20.f);
+            if(this->_swb == _SWITCH_UP && this->_swc == _SWITCH_UP) Chassis.moveTo(20.f, 20.f);
             // 開頭：左，結束：中
-            if(Global.swb == _SWITCH_UP && Global.swc == _SWITCH_MIDDLE) Chassis.moveTo(20.f, -20.f);
+            if(this->_swb == _SWITCH_UP && this->_swc == _SWITCH_MIDDLE) Chassis.moveTo(20.f, -20.f);
             // 開頭：左，結束：右
-            if(Global.swb == _SWITCH_UP && Global.swc == _SWITCH_DOWN) Chassis.moveTo(-20.f, 20.f);
+            if(this->_swb == _SWITCH_UP && this->_swc == _SWITCH_DOWN) Chassis.moveTo(-20.f, 20.f);
 
             // 開頭：右，結束：左
-            if(Global.swb == _SWITCH_DOWN && Global.swc == _SWITCH_UP) Chassis.moveTo(-20.f, -20.f);
+            if(this->_swb == _SWITCH_DOWN && this->_swc == _SWITCH_UP) Chassis.moveTo(-20.f, -20.f);
             // 開頭：右，結束：中
-            if(Global.swb == _SWITCH_DOWN && Global.swc == _SWITCH_MIDDLE) Chassis.moveTo(-20.f, 20.f);
+            if(this->_swb == _SWITCH_DOWN && this->_swc == _SWITCH_MIDDLE) Chassis.moveTo(-20.f, 20.f);
             // 開頭：右，結束：右
-            if(Global.swb == _SWITCH_DOWN && Global.swc == _SWITCH_DOWN) Chassis.moveTo(20.f, -20.f);
+            if(this->_swb == _SWITCH_DOWN && this->_swc == _SWITCH_DOWN) Chassis.moveTo(20.f, -20.f);
 
             break;
+        }
 
         // swa = down, swd = down => 手動砲台模式，微調左右砲位置
-        case 4:
-        	this->_case2_flag = false;
+        case 4: {
+        	this->_under_case2 = false;
 
             Turret.fine_tune(_LEFT, REMOTE::joystick_mapping(this->ppmHigh[0], -1.f, 1.f), REMOTE::joystick_mapping(this->ppmHigh[1], -1.f, 1.f));
             Turret.fine_tune(_RIGHT, REMOTE::joystick_mapping(this->ppmHigh[2], -1.f, 1.f), REMOTE::joystick_mapping(this->ppmHigh[3], -1.f, 1.f));
 
             break;
+        }
 
         default:
             break;
@@ -183,10 +194,10 @@ uint8_t REMOTE::switch_mapping(uint16_t ppmHigh){
  * @brief Switch 撥桿與模式映射的函數。
  */
 uint8_t REMOTE::switch_mode_mapping(void){
-    if(Global.swa == _SWITCH_UP && Global.swd == _SWITCH_UP) return 1;
-    if(Global.swa == _SWITCH_UP && Global.swd == _SWITCH_DOWN) return 2;
-    if(Global.swa == _SWITCH_DOWN && Global.swd == _SWITCH_UP) return 3;
-    if(Global.swa == _SWITCH_DOWN && Global.swd == _SWITCH_DOWN) return 4;
+    if(this->_swa == _SWITCH_UP && this->_swd == _SWITCH_UP) return 1;
+    if(this->_swa == _SWITCH_UP && this->_swd == _SWITCH_DOWN) return 2;
+    if(this->_swa == _SWITCH_DOWN && this->_swd == _SWITCH_UP) return 3;
+    if(this->_swa == _SWITCH_DOWN && this->_swd == _SWITCH_DOWN) return 4;
 
     return 0;
 }
@@ -196,13 +207,13 @@ uint8_t REMOTE::switch_mode_mapping(void){
 /** 
  * @brief 將 PPM 資料傳給 Global 資料。
  */
-void REMOTE::ppmHigh_to_global(void){
-    Global.swa = REMOTE::switch_mapping(this->ppmHigh[4]);
-    Global.swb = REMOTE::switch_mapping(this->ppmHigh[5]);
-    Global.swc = REMOTE::switch_mapping(this->ppmHigh[6]);
-    Global.swd = REMOTE::switch_mapping(this->ppmHigh[7]);
+void REMOTE::ppm_high_to_switch_and_mode(void){
+    this->_swa = REMOTE::switch_mapping(this->ppmHigh[4]);
+    this->_swb = REMOTE::switch_mapping(this->ppmHigh[5]);
+    this->_swc = REMOTE::switch_mapping(this->ppmHigh[6]);
+    this->_swd = REMOTE::switch_mapping(this->ppmHigh[7]);
 
-    Global.mode = REMOTE::switch_mode_mapping();
+    this->_mode = REMOTE::switch_mode_mapping();
     return;
 }
 
@@ -327,13 +338,11 @@ extern "C" void DMA1_Stream0_IRQHandler(void) {
     if(Remote.count%10){
 		Remote.ppm_raw_to_cnt();
 		Remote.ppm_cnt_to_high();
-		Remote.ppmHigh_to_global();
-        Remote.global_update();
+		Remote.ppm_high_to_switch_and_mode();
+        Remote.mode_execute();
     }
 
     if(Remote.count%2) __HAL_TIM_SET_COUNTER(&htim17, 0);
 
     return;
 }
-
-

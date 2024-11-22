@@ -189,15 +189,3 @@ extern "C" void DMA1_Stream1_IRQHandler(void) {
     return;
 }
 
-
-/**
- * @brief DMA 中斷處理函式
- *  記得在 stm32h7xx_it.c 刪除函數，否則會有 First Defined Here 的錯誤。
- */
-extern "C" void DMA1_Stream2_IRQHandler(void) {
-    HAL_DMA_IRQHandler(&hdma_tim4_ch1);
-
-    __HAL_TIM_SET_COUNTER(&htim4, 0);
-
-    return;
-}

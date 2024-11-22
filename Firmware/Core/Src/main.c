@@ -53,7 +53,6 @@ TIM_HandleTypeDef htim17;
 TIM_HandleTypeDef htim23;
 TIM_HandleTypeDef htim24;
 DMA_HandleTypeDef hdma_tim1_ch1;
-DMA_HandleTypeDef hdma_tim4_ch1;
 DMA_HandleTypeDef hdma_tim17_ch1;
 
 UART_HandleTypeDef huart6;
@@ -907,9 +906,6 @@ static void MX_DMA_Init(void)
   /* DMA1_Stream1_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Stream1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Stream1_IRQn);
-  /* DMA1_Stream2_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Stream2_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Stream2_IRQn);
 
 }
 
