@@ -157,8 +157,8 @@ void REMOTE::mode_execute(void){
         case 4: {
         	this->_under_case2 = false;
 
-            Turret.fine_tune(_LEFT, REMOTE::joystick_mapping(this->ppmHigh[0], -1.f, 1.f), REMOTE::joystick_mapping(this->ppmHigh[1], -1.f, 1.f));
-            Turret.fine_tune(_RIGHT, REMOTE::joystick_mapping(this->ppmHigh[2], -1.f, 1.f), REMOTE::joystick_mapping(this->ppmHigh[3], -1.f, 1.f));
+            Turret.fine_tune(_LEFT, REMOTE::joystick_mapping(this->ppmHigh[0], -100.f, 100.f), REMOTE::joystick_mapping(this->ppmHigh[1], 0, 100));
+            Turret.fine_tune(_RIGHT, REMOTE::joystick_mapping(this->ppmHigh[2], -100.f, 100.f), REMOTE::joystick_mapping(this->ppmHigh[3], 0, 100));
 
             break;
         }

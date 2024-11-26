@@ -15,7 +15,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
 
 class INTERRUPT{
 public:
-	void init(void);
+	static void init(void);
 
 };
 

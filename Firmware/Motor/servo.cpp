@@ -8,10 +8,10 @@
 #include <servo.hpp>
 
 /* TYPE 1 SERVO */
-extern TIM_HandleTypeDef htim24;
+extern TIM_HandleTypeDef htim1;
 
-SERVO ServoElevatorR(&htim24,1);
-SERVO ServoElevatorL(&htim24,3);
+SERVO ServoElevatorR(&htim1, TIM_CHANNEL_2);
+SERVO ServoElevatorL(&htim1, TIM_CHANNEL_3);
 
 
 /* TYPE 2 SERVO */
@@ -23,9 +23,13 @@ SERVO ServoTriggerL(&huart10, 3);
 
 
 void SERVO::init(void){
-	ServoTriggerL.UART_send_pos(1000, 500);
-	ServoTriggerR.UART_send_pos(1000, 500);
+	HAL_TIM_PWM_Start(ServoElevatorR._TIMx, ServoElevatorR._channel);
+	HAL_TIM_PWM_Start(ServoElevatorL._TIMx, ServoElevatorL._channel);
+
+	ServoTriggerL.UART_send_pos(950, 200);
+	ServoTriggerR.UART_send_pos(950, 200);
 }
+
 
 /**
  * @brief 開環控制，須進中斷。
@@ -33,26 +37,6 @@ void SERVO::init(void){
 void SERVO::open_loop_step(void){
   // 設定 CCR 值
   this->_deg_to_ccr();
-
-  // 輸出 PWM
-
-  // switch(this->_channel){
-  //   case 1:
-  //     __HAL_TIM_SET_COMPARE(this->_TIMx, TIM_CHANNEL_1, this->_goal_ccr);
-  //     break;
-  //   case 2:
-  //     __HAL_TIM_SET_COMPARE(this->_TIMx, TIM_CHANNEL_2, this->_goal_ccr);
-  //     break;
-  //   case 3:
-  //     __HAL_TIM_SET_COMPARE(this->_TIMx, TIM_CHANNEL_3, this->_goal_ccr);
-  //     break;
-  //   case 4:
-  //     __HAL_TIM_SET_COMPARE(this->_TIMx, TIM_CHANNEL_4, this->_goal_ccr);
-  //     break;
-
-  //   default:
-  //     break;
-  // }
 
   __HAL_TIM_SET_COMPARE(this->_TIMx, this->_channel, this->_goal_ccr);
 
@@ -63,11 +47,18 @@ void SERVO::open_loop_step(void){
 /**
  * @brief 將角度轉換為 CCR 值
  */
-void SERVO::_deg_to_ccr(void){
-  if (_goal_deg < _MIN_DEG) _goal_deg = _MIN_DEG;
-  if (_goal_deg > _MAX_DEG) _goal_deg = _MAX_DEG;
+void SERVO::_deg_to_ccr(void) {
+  // 確保輸入範圍在 [0, _MAX_DEG]
+  if (this->_goal_deg > _MAX_DEG) this->_goal_deg = static_cast<uint16_t>(_MAX_DEG);
+  else if (this->_goal_deg < 0) this->_goal_deg = 0;
 
-  _goal_ccr = static_cast<uint16_t>((_goal_deg * 1000) / _MAX_DEG);
+  // 計算 _goal_ccr，對應到 _CYCLE_MS 的 42.8571% ~ 100%
+  const float lower_bound = 0.428571f; // 42.8571%
+  const float upper_bound = 1.0f;      // 100%
+  this->_goal_ccr = static_cast<uint32_t>(
+      this->_CYCLE_MS * (lower_bound +
+      (static_cast<float>(this->_goal_deg) / _MAX_DEG) * (upper_bound - lower_bound))
+  );
 
   return;
 }

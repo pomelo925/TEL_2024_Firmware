@@ -41,8 +41,8 @@ private:
 	const uint16_t _PPM_SWITCH_DUTY_MAX = 1950; //大於 1950 視為高電平。
 
 	// PPM 訊號占空比判定（單位：us），僅用於判定 Joystick 類比搖桿
-	const uint16_t _PPM_JOYSTICK_DUTY_MIN = 1004; 
-	const uint16_t _PPM_JOYSTICK_DUTY_MAX = 2011;
+	const uint16_t _PPM_JOYSTICK_DUTY_MIN = 1002;
+	const uint16_t _PPM_JOYSTICK_DUTY_MAX = 2012;
 	const uint16_t _PPM_JOYSTICK_DUTY_DEFAULT = 1508;
 
 	// case 2 (A0D1) 啟動 Flag，切換模式後需重新啟動
@@ -52,9 +52,9 @@ private:
 
 	// 當前 Switch 撥桿狀態
 	uint8_t _swa = _SWITCH_UP;
-  uint8_t _swb = _SWITCH_UP;
-  uint8_t _swc = _SWITCH_UP;
-  uint8_t _swd = _SWITCH_UP;
+	uint8_t _swb = _SWITCH_UP;
+	uint8_t _swc = _SWITCH_UP;
+	uint8_t _swd = _SWITCH_UP;
 
 	// Switch 撥桿狀態對應模式
 	uint8_t _mode = 0;

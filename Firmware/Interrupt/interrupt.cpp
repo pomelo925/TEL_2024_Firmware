@@ -15,15 +15,18 @@
 
 
 extern TIM_HandleTypeDef htim6;
+extern TIM_HandleTypeDef htim7;
 extern TIM_HandleTypeDef htim16;
 
 INTERRUPT Interrupt;
 
 void INTERRUPT::init(void){
 	HAL_TIM_Base_Start_IT(&htim6);
+	HAL_TIM_Base_Start_IT(&htim7);
 	HAL_TIM_Base_Start_IT(&htim16);
 	return;
 }
+
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	// TIM6 : 5000hz
@@ -31,7 +34,17 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 		/* STEPPER：填彈 */
 		Stepper_L.open_loop_step();
 		Stepper_R.open_loop_step();
+		ServoElevatorR.open_loop_step();
+		ServoElevatorL.open_loop_step();
 	}
+
+
+	// TIM7 : 500hz
+//	if(htim->Instance == TIM7){
+//		/* STEPPER：填彈 */
+//		ServoElevatorR.open_loop_step();
+//		ServoElevatorL.open_loop_step();
+//	}
 
 
 	// TIM16 : 1000hz
@@ -49,11 +62,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 		DC_SwivelR.open_loop_pwm_output();
 
 		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_1, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_0, GPIO_PIN_SET);
-
 
 		/* Turret：更新發射填彈的外部時鐘計算 */
 		Turret.update_shoot_and_reload_timer();
+		Turret.update_init_timer();
 	}
 
 	return;

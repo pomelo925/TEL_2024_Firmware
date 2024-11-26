@@ -17,11 +17,11 @@ public:
 	static void init(void);
 
 /* TYPE 1 SERVO */
-	SERVO(TIM_HandleTypeDef* TIMx, uint8_t channel):
+	SERVO(TIM_HandleTypeDef* TIMx, uint32_t channel):
 		_TIMx(TIMx), _channel(channel){};
 
 	void open_loop_step(void);
-	void set_goal_deg(uint8_t goal_deg){_goal_deg = goal_deg;};
+	void set_goal_deg(uint32_t goal_deg){_goal_deg = goal_deg;};
 
 
 /* TYPE 2 SERVO */
@@ -37,18 +37,18 @@ private:
 	void _deg_to_ccr(void);
 
 	TIM_HandleTypeDef* _TIMx = nullptr;
-	uint8_t _channel = 0;
+	uint32_t _channel = 0;
 
-	uint8_t _goal_deg = 0;
-	uint16_t _goal_ccr = 0;
+	uint32_t _goal_deg = 0;
+	uint32_t _goal_ccr = 0;
 
-	const uint8_t _MIN_DEG = 0;
-	const uint8_t _MAX_DEG = 180;
-	const int _CYCLE_MS = 1000;
+	const uint16_t _MIN_DEG = 0;
+	const uint16_t _MAX_DEG = 100;
+	const int _CYCLE_MS = 10499;
 
 
 /* TYPE 2 SERVO */
-	UART_HandleTypeDef* _huart;
+	UART_HandleTypeDef* _huart = nullptr;
 	uint16_t _id = 0;
 	int _checksum_calc = 0;
 

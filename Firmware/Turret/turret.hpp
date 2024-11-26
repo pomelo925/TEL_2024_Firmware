@@ -11,23 +11,28 @@
 
 class TURRET{
 public:
-    void operate_with_default_mode(uint8_t device, uint8_t mode);
-		void update_shoot_and_reload_timer(void);
-    void shoot_and_reload(uint8_t device, bool trigger_once);
-    void fine_tune(uint8_t device, float swivel_speed, float elevation_speed);
+	static void init(void);
+  void operate_with_default_mode(uint8_t device, uint8_t mode);
+	void update_init_timer(void);
+	void update_shoot_and_reload_timer(void);
+  void shoot_and_reload(uint8_t device, bool trigger_once);
+  void fine_tune(uint8_t device, float swivel_duty, uint32_t elevation_angle);
 
 private:
-    int _current_mode_left = 0;
-    int _current_mode_right = 0;
+  int _current_mode_left = 0;
+  int _current_mode_right = 0;
 	
-	// shoot_and_reload() 狀態機變數
-		int _step_L = 0, _step_R = 0; 
-    uint32_t _ms_L = 0, _ms_R = 0;
-		bool _working_R = false, _working_L = false;
+  // shoot_and_reload() 狀態機變數
+  int _step_L = 0, _step_R = 0;
+  uint32_t _ms_L = 0, _ms_R = 0;
+  bool _working_R = false, _working_L = false;
+  bool _work_unit_done_L = false, _work_unit_done_R = false;
+  void _execute_shoot_and_reload_L(void);
+  void _execute_shoot_and_reload_R(void);
 
-    bool _work_unit_done_L = false, _work_unit_done_R = false;
-		void _execute_shoot_and_reload_L(void);
-    void _execute_shoot_and_reload_R(void);
+	// init() 變數
+	static uint32_t _init_ms;
+
 
 	// JOYSTICK 搖桿狀態
 	enum JOYSTICK{

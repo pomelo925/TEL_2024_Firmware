@@ -1,5 +1,5 @@
 /*
- * motor.cpp
+ * dc.cpp
  *
  *  Created on: Oct 16, 2024
  *      Author: pomelo925
@@ -7,21 +7,19 @@
 
 #include "stm32h7xx.h"
 #include "stm32h7xx_hal.h"
+#include "stm32h7xx_hal_adc.h" 
 #include "stm32h7xx_hal_dma.h"
 
 #include <dc.hpp>
 
-extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim3;
-extern TIM_HandleTypeDef htim4;
 extern TIM_HandleTypeDef htim5;
 extern TIM_HandleTypeDef htim8;
 extern TIM_HandleTypeDef htim15;
 extern TIM_HandleTypeDef htim23;
 extern TIM_HandleTypeDef htim24;
 
-extern DMA_HandleTypeDef hdma_tim1_ch1;
-extern DMA_HandleTypeDef hdma_tim4_ch1;
+extern ADC_HandleTypeDef hadc2;
 
 
 DC DC_LauncherL1(&htim15, TIM_CHANNEL_1, GPIOA, GPIO_PIN_15);
@@ -30,10 +28,10 @@ DC DC_LauncherR1(&htim8, TIM_CHANNEL_3, GPIOD, GPIO_PIN_2);
 DC DC_LauncherR2(&htim8, TIM_CHANNEL_1, GPIOD, GPIO_PIN_3);
 
 DC DC_SwivelL(&htim23, TIM_CHANNEL_1, GPIOD, GPIO_PIN_1,
-		&htim1, TIM_CHANNEL_1, GPIOD, GPIO_PIN_0);
+		          GPIOD, GPIO_PIN_0);
 
 DC DC_SwivelR(&htim24, TIM_CHANNEL_4, GPIOG, GPIO_PIN_10,
-		&htim4, TIM_CHANNEL_1, GPIOE, GPIO_PIN_7);
+		          GPIOE, GPIO_PIN_7);
 
 DC DC_ChassisL(&htim8, TIM_CHANNEL_2, GPIOC, GPIO_PIN_10,
                 &htim5, 40.f, 0.f, 0.f,
@@ -44,19 +42,26 @@ DC DC_ChassisR(&htim8, TIM_CHANNEL_4, GPIOC, GPIO_PIN_11,
                 1024.f, 26.f, 0.001f);
 
 
+uint32_t DC::_dc_swivel_adc[2] = {0};
+
 /**
  * @brief 初始化
  */
 void DC::init(void){
+
   /* 啟動 Encoder Timer */
   HAL_TIM_Encoder_Start(this->getEncTimer(), TIM_CHANNEL_ALL);
-
   /* 啟動 PWM 輸出 Timer */
   HAL_TIM_PWM_Start_IT(this->getPwmTimer(), this->getPwmChannel());
-  
+  /* 啟動 ADC x DMA*/
+  HAL_ADC_Start_DMA(&hadc2, (uint32_t*)DC::_dc_swivel_adc, 2);
 
-//  HAL_TIM_IC_Start_DMA(&htim1, TIM_CHANNEL_1, this->ppmRaw, 18);
-//  HAL_TIM_IC_Start_DMA(&htim4, TIM_CHANNEL_1, this->ppmRaw, 18);
+
+  /* 關閉煞車 */
+  HAL_GPIO_WritePin(this->_breakPort, this->_breakPin, GPIO_PIN_SET);
+  /* Swivel 靜止 */
+  DC_SwivelL.set_duty(100);
+  DC_SwivelR.set_duty(100);
 
   return;
 }
@@ -175,17 +180,3 @@ void DC::freeze_launcher(void){
 
   return;
 }
-
-
-/**
- * @brief DMA 中斷處理函式
- *  記得在 stm32h7xx_it.c 刪除函數，否則會有 First Defined Here 的錯誤。
- */
-extern "C" void DMA1_Stream1_IRQHandler(void) {
-    HAL_DMA_IRQHandler(&hdma_tim1_ch1);
-
-    __HAL_TIM_SET_COUNTER(&htim1, 0);
-
-    return;
-}
-

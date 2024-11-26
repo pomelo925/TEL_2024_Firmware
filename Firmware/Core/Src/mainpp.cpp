@@ -12,6 +12,7 @@
 #include <global.hpp>
 #include <interrupt.hpp>
 #include <servo.hpp>
+#include <turret.hpp>
 
 void main_function(void){
 	/* 初始化 */
@@ -23,24 +24,15 @@ void main_function(void){
 	DC_LauncherL2.init();
 	DC_LauncherR1.init();
 	DC_LauncherR2.init();
-
-
-	SERVO::init();
-	Interrupt.init();
 	Remote.init();
 
-	ServoTriggerR.UART_send_pos(1000, 1000);
+	SERVO::init();
+	INTERRUPT::init();
+	TURRET::init();
 
 
 	/* 無限迴圈 */
 	while(1){
-		/**
-		 * Mission 中會去呼叫使機構作動的 Function
-		 * 這類 Function 參數一律為 GLOBAL 參數集合
-		 * Remote.MODE = true 時，GLOBAL 只由 Remote 遠端傳輸決定
-		 * Remote.MODE = false 時，GLOBAL 則可從 live expression 調整
-		 */
-
 	}
 	return;
 }

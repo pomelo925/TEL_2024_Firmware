@@ -1,5 +1,5 @@
 /*
- * motor.hpp
+ * dc.hpp
  *
  *  Created on: Oct 16, 2024
  *      Author: pomelo925
@@ -24,6 +24,23 @@ public:
 
 
   /**
+   * 適用內建閉迴路之直流馬達，編碼器為 ADC 訊號
+   * @param pwmTimer PWM 輸出定時器
+   * @param pwmChannel PWM 輸出定時器通道
+   * @param dirPort 方向 GPIO 端口
+   * @param dirPin 方向 GPIO 引腳
+   * @param breakPort 煞車 GPIO 端口
+   * @param breakPin 煞車 GPIO 引腳
+   */
+
+  DC(TIM_HandleTypeDef* pwmTimer, uint32_t pwmChannel, GPIO_TypeDef* dirPort, uint16_t dirPin,
+	  GPIO_TypeDef* breakPort, uint16_t breakPin)
+    :_pwmTimer(pwmTimer), _pwmChannel(pwmChannel),  _dirPort(dirPort), _dirPin(dirPin),
+	    _breakPort(breakPort), _breakPin(breakPin){
+  }
+
+
+  /**
    * 適用閉迴路控制直流馬達
    * @param pwmTimer PWM 輸出定時器
    * @param pwmChannel PWM 輸出定時器通道
@@ -44,24 +61,6 @@ public:
      _encTimer(encTimer), _kp(kp), _ki(ki), _kd(kd),
      _encoder_res(res), _sr_ratio(ratio), _interval(interval){}
 
-
-  /**
-   * 適用內建閉迴路之直流馬達，編碼器為PWM訊號
-   * @param pwmTimer PWM 輸出定時器
-   * @param pwmChannel PWM 輸出定時器通道
-   * @param dirPort 方向 GPIO 端口
-   * @param dirPin 方向 GPIO 引腳
-   * @param encTimer 編碼器定時器
-   * @param encChannel 編碼器定時器通道
-   * @param breakPort 煞車 GPIO 端口
-   * @param breakPin 煞車 GPIO 引腳
-   */
-
-  DC(TIM_HandleTypeDef* pwmTimer, uint32_t pwmChannel, GPIO_TypeDef* dirPort, uint16_t dirPin,
-	TIM_HandleTypeDef* encTimer, uint32_t encChannel, GPIO_TypeDef* breakPort, uint16_t breakPin)
-    :_pwmTimer(pwmTimer), _pwmChannel(pwmChannel),  _dirPort(dirPort), _dirPin(dirPin),
-	 _encTimer(encTimer), _encChannel(encChannel), _breakPort(breakPort), _breakPin(breakPin){
-  }
   
   static void freeze_launcher(void);
   void init(void);
@@ -118,6 +117,9 @@ private:
   float _target_PWM=0.f;  /* PWM target output. Fed to Interrupt. */
 
   static constexpr float PWM_SCALE = 999.f;
+  
+  // ADC
+  static uint32_t _dc_swivel_adc[2];
 };
 
 
