@@ -24,7 +24,7 @@ void TURRET::init(void){
     Stepper_R.set_goal_pos(500);
     while(TURRET::_init_ms < 1500){};  // 等待 1.5 秒
 
-    ServoTriggerR.UART_send_pos(1150, 100);
+    ServoTriggerR.UART_send_pos(1150, 100, true);
     while(TURRET::_init_ms < 2500){};  // 等待 1 秒
 
     Stepper_R.set_goal_pos(-13000);
@@ -51,36 +51,43 @@ void TURRET::operate_with_default_mode(uint8_t device, uint8_t mode){
 
         switch (mode){
         case _LEFT_TOP:
+            DC_SwivelL.set_target_pos_adc(20);
             ServoElevatorL.set_goal_deg(50);
         	DC_LauncherL1.set_duty(max_duty);
         	DC_LauncherL2.set_duty(max_duty);
             break;
         
         case _RIGHT_TOP:
+            DC_SwivelL.set_target_pos_adc(20);
             ServoElevatorL.set_goal_deg(50);
         	DC_LauncherL1.set_duty(max_duty);
         	DC_LauncherL2.set_duty(max_duty);
             break;
 
         case _LEFT_MIDDLE:
+            DC_SwivelL.set_target_pos_adc(20);
             ServoElevatorL.set_goal_deg(50);
         	DC_LauncherL1.set_duty(max_duty);
         	DC_LauncherL2.set_duty(max_duty);
             break;
 
         case _RIGHT_MIDDLE:
+            DC_SwivelL.set_target_pos_adc(20);
+            DC_SwivelL.set_target_pos_adc(20);
             ServoElevatorL.set_goal_deg(50);
         	DC_LauncherL1.set_duty(max_duty);
         	DC_LauncherL2.set_duty(max_duty);
             break;
         
         case _LEFT_BOTTOM:
+            DC_SwivelL.set_target_pos_adc(20);
             ServoElevatorL.set_goal_deg(50);
         	DC_LauncherL1.set_duty(max_duty);
         	DC_LauncherL2.set_duty(max_duty);
             break;
 
         case _RIGHT_BOTTOM:
+            DC_SwivelL.set_target_pos_adc(20);
             ServoElevatorL.set_goal_deg(50);
         	DC_LauncherL1.set_duty(max_duty);
         	DC_LauncherL2.set_duty(max_duty);
@@ -100,36 +107,42 @@ void TURRET::operate_with_default_mode(uint8_t device, uint8_t mode){
         
         switch (mode){
         case _LEFT_TOP:
+            DC_SwivelR.set_target_pos_adc(20);
             ServoElevatorR.set_goal_deg(50);
         	DC_LauncherR1.set_duty(max_duty);
         	DC_LauncherR2.set_duty(max_duty);
             break;
         
         case _RIGHT_TOP:
+            DC_SwivelR.set_target_pos_adc(20);
             ServoElevatorR.set_goal_deg(50);
         	DC_LauncherR1.set_duty(max_duty);
         	DC_LauncherR2.set_duty(max_duty);
             break;
 
         case _LEFT_MIDDLE:
+            DC_SwivelR.set_target_pos_adc(20);
             ServoElevatorR.set_goal_deg(50);
         	DC_LauncherR1.set_duty(max_duty);
         	DC_LauncherR2.set_duty(max_duty);
             break;
 
         case _RIGHT_MIDDLE:
+            DC_SwivelR.set_target_pos_adc(20);
             ServoElevatorR.set_goal_deg(50);
         	DC_LauncherR1.set_duty(max_duty);
         	DC_LauncherR2.set_duty(max_duty);
             break;
         
         case _LEFT_BOTTOM:
+            DC_SwivelR.set_target_pos_adc(20);
             ServoElevatorR.set_goal_deg(50);
         	DC_LauncherR1.set_duty(max_duty);
         	DC_LauncherR2.set_duty(max_duty);
             break;
 
         case _RIGHT_BOTTOM:
+            DC_SwivelR.set_target_pos_adc(20);
             ServoElevatorR.set_goal_deg(50);
         	DC_LauncherR1.set_duty(max_duty);
         	DC_LauncherR2.set_duty(max_duty);
@@ -152,14 +165,14 @@ void TURRET::operate_with_default_mode(uint8_t device, uint8_t mode){
 void TURRET::_execute_shoot_and_reload_L(void){
     switch (this->_step_L){
     case 0:
-        ServoTriggerL.UART_send_pos(1100,4000);
+        ServoTriggerL.UART_send_pos(1100, 4000, true);
         this->_step_L = 1;
         this->_ms_L = 0;
         break;
     
     case 1:
         if (this->_ms_L >= 1000) { // 等待 1 秒
-            ServoTriggerL.UART_send_pos(1250, 500);
+            ServoTriggerL.UART_send_pos(1250, 500, true);
             this->_step_L = 2;
             this->_ms_L = 0;
         }
@@ -167,7 +180,7 @@ void TURRET::_execute_shoot_and_reload_L(void){
     
     case 2:
         if (this->_ms_L >= 1000) { // 等待 1 秒
-            ServoTriggerL.UART_send_pos(950, 500);
+            ServoTriggerL.UART_send_pos(950, 500, true);
             Stepper_L.set_goal_pos(-5500);
             this->_step_L = 3;
             this->_ms_L = 0;
@@ -177,7 +190,7 @@ void TURRET::_execute_shoot_and_reload_L(void){
     case 3:
         if (this->_ms_L >= 1000) { // 等待 1 秒
         	Stepper_L.set_goal_pos(3000);
-            ServoTriggerL.UART_send_pos(1100, 500);
+            ServoTriggerL.UART_send_pos(1100, 500, true);
             this->_step_L = 0;
             this->_ms_L = 0;
             this->_work_unit_done_L = true;
@@ -198,22 +211,22 @@ void TURRET::_execute_shoot_and_reload_L(void){
 void TURRET::_execute_shoot_and_reload_R(void){
     switch (this->_step_R){
     case 0:
-        ServoTriggerR.UART_send_pos(1150, 100);
+        ServoTriggerR.UART_send_pos(1150, 100, true);
         this->_step_R = 1;
         this->_ms_R = 0;
         break;
 
     case 1:
         if (this->_ms_R >= 300) { // 等待 0.3 秒
-            ServoTriggerR.UART_send_pos(1250, 1);
+            ServoTriggerR.UART_send_pos(1250, 1, true);
             this->_step_R = 2;
             this->_ms_R = 0;
         }
         break;
 
     case 2:
-        if (this->_ms_R >= 1000) { // 等待 1 秒
-            ServoTriggerR.UART_send_pos(950, 100);
+        if (this->_ms_R >= 500) { // 等待 0.5 秒
+            ServoTriggerR.UART_send_pos(950, 100, true);
             this->_step_R = 3;
             this->_ms_R = 0;
         }
@@ -221,7 +234,7 @@ void TURRET::_execute_shoot_and_reload_R(void){
     
 
     case 3:
-        if (this->_ms_R >= 1000) { // 等待 1 秒
+        if (this->_ms_R >= 500) { // 等待 0.5 秒
             Stepper_R.set_goal_pos(-29000);
             this->_step_R = 4;
             this->_ms_R = 0;
@@ -238,13 +251,13 @@ void TURRET::_execute_shoot_and_reload_R(void){
 
     case 5:
         if (this->_ms_R >= 1000) { // 等待 1 秒
-        	ServoTriggerR.UART_send_pos(1150, 100);
+        	ServoTriggerR.UART_send_pos(1150, 100, true);
             this->_step_R = 6;
             this->_ms_R = 0;
         }
 
     case 6:
-        if (this->_ms_R >= 1000) { // 等待 1 秒
+        if (this->_ms_R >= 500) { // 等待 0.5 秒
         	Stepper_R.set_goal_pos(-9000);
             this->_step_R = 0;
             this->_ms_R = 0;
@@ -313,43 +326,42 @@ void TURRET::shoot_and_reload(uint8_t device, bool trigger_once){
  * @param elevation_angle 仰角角度（°）
  */
 void TURRET::fine_tune(uint8_t device, float swivel_duty, uint32_t elevation_angle){
-    // 處理占空比反向邏輯（馬達端問題）
-    const float adjusted_duty = (swivel_duty > 0 ? 1 : -1) * (100 - abs(swivel_duty));
-    
+    // 最快每秒執行一次
+    static uint32_t last_ms = 0;
+    if(_fine_tune_ms - last_ms < 1000) return;
+    last_ms = _fine_tune_ms;
+
+    const uint32_t swivel_unit_step = 5;
+    const uint32_t elevation_unit_step = 2;
+
     if(device == _LEFT){
         // swivel
-        DC_SwivelL.set_duty(adjusted_duty);
+        if(abs(swivel_duty)>50) DC_SwivelL.add_target_pos_adc(swivel_unit_step);
 
-        // elevation+
-        ServoElevatorL.set_goal_deg(elevation_angle);
-
+        // elevation
+        if(elevation_angle>50) ServoElevatorL.add_goal_deg(elevation_unit_step);
     }
     
     else if(device == _RIGHT){
         // swivel
-    	DC_SwivelR.set_duty(adjusted_duty);
+    	if(abs(swivel_duty)>50) DC_SwivelR.add_target_pos_adc(swivel_unit_step);
 
         // elevation
-        ServoElevatorR.set_goal_deg(elevation_angle);
+        if(elevation_angle>50) ServoElevatorR.add_goal_deg(elevation_unit_step);
     }
     
     return;
 }
 
 
-/**
- * @brief 更新初始化計時器
- */
-void TURRET::update_init_timer(void){
-    this->_init_ms++;
-    return;
-}
 
 /**
  * @brief 更新發射填彈的外部時鐘計算
  */
-void TURRET::update_shoot_and_reload_timer(void){
+void TURRET::update_timer(void){
     if(!this->_work_unit_done_L) this->_ms_L++;
     if(!this->_work_unit_done_R) this->_ms_R++;
+    _fine_tune_ms++;
+    _init_ms++;
     return;
 }

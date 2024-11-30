@@ -13,8 +13,7 @@ class TURRET{
 public:
 	static void init(void);
   void operate_with_default_mode(uint8_t device, uint8_t mode);
-	void update_init_timer(void);
-	void update_shoot_and_reload_timer(void);
+	void update_timer(void);
   void shoot_and_reload(uint8_t device, bool trigger_once);
   void fine_tune(uint8_t device, float swivel_duty, uint32_t elevation_angle);
 
@@ -30,9 +29,11 @@ private:
   void _execute_shoot_and_reload_L(void);
   void _execute_shoot_and_reload_R(void);
 
+	// fine_tune() 變數
+	uint32_t _fine_tune_ms = 0;
+
 	// init() 變數
 	static uint32_t _init_ms;
-
 
 	// JOYSTICK 搖桿狀態
 	enum JOYSTICK{

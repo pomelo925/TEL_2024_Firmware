@@ -8,6 +8,7 @@
 #include "stm32h7xx.h"
 #include "stm32h7xx_hal.h"
 #include "stm32h7xx_hal_adc.h" 
+#include "stm32h7xx_hal_adc_ex.h"
 #include "stm32h7xx_hal_dma.h"
 
 #include <dc.hpp>
@@ -19,6 +20,7 @@ extern TIM_HandleTypeDef htim15;
 extern TIM_HandleTypeDef htim23;
 extern TIM_HandleTypeDef htim24;
 
+extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
 
 
@@ -41,31 +43,33 @@ DC DC_ChassisR(&htim8, TIM_CHANNEL_4, GPIOC, GPIO_PIN_11,
                 &htim3, 40.f, 0.f, 0.f,
                 1024.f, 26.f, 0.001f);
 
+uint32_t _swivel_adc_L[3], _swivel_adc_R[3];
 
-uint32_t DC::_dc_swivel_adc[2] = {0};
 
 /**
  * @brief 初始化
  */
 void DC::init(void){
-
   /* 啟動 Encoder Timer */
   HAL_TIM_Encoder_Start(this->getEncTimer(), TIM_CHANNEL_ALL);
   /* 啟動 PWM 輸出 Timer */
   HAL_TIM_PWM_Start_IT(this->getPwmTimer(), this->getPwmChannel());
-  /* 啟動 ADC x DMA*/
-  HAL_ADC_Start_DMA(&hadc2, (uint32_t*)DC::_dc_swivel_adc, 2);
-
-
   /* 關閉煞車 */
   HAL_GPIO_WritePin(this->_breakPort, this->_breakPin, GPIO_PIN_SET);
-  /* Swivel 靜止 */
-  DC_SwivelL.set_duty(100);
-  DC_SwivelR.set_duty(100);
 
   return;
 }
 
+
+/**
+ * @brief Swivel 初始化
+ */
+void DC::swivel_init(void){
+  /* 啟動 ADC x DMA*/
+  HAL_ADC_Start_DMA(&hadc1, _swivel_adc_L, 1);
+  HAL_ADC_Start_DMA(&hadc2, _swivel_adc_R, 1);
+  return;
+}
 
 
 /**
@@ -107,10 +111,31 @@ void DC::close_loop_pwm_output(){
 }
 
 
-/**
- * @brief PID 追位置
- */
-void DC::close_loop_pos(float pos){
+void DC::close_loop_adc_pwm_output(uint8_t idx){
+  // 1. 更新當前位置
+  if(idx == 0) this->_current_pos_adc = _swivel_adc_L[1];
+  else this->_current_pos_adc = _swivel_adc_R[1];
+
+  // 2. 計算誤差
+  const uint32_t error = _target_pos_adc - _current_pos_adc;
+  const uint32_t duty = ( error > 0) ? 5 : -5;
+  this->set_duty(duty);
+  // const float adjusted_duty = (duty > 0 ? 1 : -1) * (100 - abs(swivel_duty));    // 處理占空比反向邏輯（馬達端問題）
+
+  if(error < 1){
+    HAL_GPIO_WritePin(this->_breakPort, this->_breakPin, GPIO_PIN_RESET); // 煞車
+    return;
+  }
+
+  // 3. 設置電機旋轉方向
+  HAL_GPIO_WritePin(this->_breakPort, this->_breakPin, GPIO_PIN_RESET); // 解除煞車
+
+	if(_duty >= 0) HAL_GPIO_WritePin(this->getDirPort(), this->getDirPin(), GPIO_PIN_SET);
+	else HAL_GPIO_WritePin(this->getDirPort(), this->getDirPin(), GPIO_PIN_RESET);
+
+  // 3. PWM 輸出
+	__HAL_TIM_SET_COMPARE(this->getPwmTimer(), this->getPwmChannel(), (abs(_duty) * PWM_SCALE) / 100);
+
   return;
 }
 

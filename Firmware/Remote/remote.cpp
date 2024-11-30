@@ -7,7 +7,6 @@
 
 #include <remote.hpp>
 #include <chassis.hpp>
-#include <global.hpp>
 #include <turret.hpp>
 #include <dc.hpp>
 

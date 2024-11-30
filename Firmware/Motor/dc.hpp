@@ -10,6 +10,7 @@
 #include "stm32h7xx.h"
 #include "stm32h7xx_hal.h"
 
+
 class DC{
 public:
   /**
@@ -64,10 +65,13 @@ public:
   
   static void freeze_launcher(void);
   void init(void);
+  static void swivel_init(void);
   
   void open_loop_pwm_output(void);
   void close_loop_pwm_output(void);
-  void close_loop_pos(float pos);
+  void close_loop_adc_pwm_output(uint8_t idx);
+  void set_target_pos_adc(uint32_t pos){_target_pos_adc = pos;}
+  void add_target_pos_adc(uint32_t pos){_target_pos_adc += pos;}
 
   void set_target_wheel_speed(float speed);
   void update_current_wheel_speed(void);
@@ -84,7 +88,6 @@ public:
   float get_current_wheel_speed(void) const {return _current_wheel_speed;}
   float get_target_pwm(void) const {return _target_PWM;}
   void set_duty(float duty){_duty = duty;}
-
 
 private:
 // REQUIRED PARAMS //
@@ -119,7 +122,8 @@ private:
   static constexpr float PWM_SCALE = 999.f;
   
   // ADC
-  static uint32_t _dc_swivel_adc[2];
+  uint32_t _target_pos_adc=0.f;
+  uint32_t _current_pos_adc=0.f;
 };
 
 

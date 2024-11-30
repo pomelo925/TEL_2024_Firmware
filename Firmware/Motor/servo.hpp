@@ -22,6 +22,7 @@ public:
 
 	void open_loop_step(void);
 	void set_goal_deg(uint32_t goal_deg){_goal_deg = goal_deg;};
+	void add_goal_deg(uint32_t goal_deg){_goal_deg += goal_deg;};
 
 
 /* TYPE 2 SERVO */
@@ -29,7 +30,8 @@ public:
 		_huart(huart), _id(id){
 	};
 
-	void UART_send_pos(uint16_t Position, uint16_t Time);
+	void UART_send_pos(uint16_t position, uint16_t Time, bool real_pos);
+	void tremble(void);
 
 
 private:
@@ -51,6 +53,7 @@ private:
 	UART_HandleTypeDef* _huart = nullptr;
 	uint16_t _id = 0;
 	int _checksum_calc = 0;
+	uint16_t _current_goal_pos = 0;
 
 	void UART_send(uint8_t u8_data);
 };

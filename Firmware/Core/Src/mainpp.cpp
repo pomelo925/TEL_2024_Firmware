@@ -9,7 +9,6 @@
 #include <mainpp.h>
 #include <remote.hpp>
 #include <dc.hpp>
-#include <global.hpp>
 #include <interrupt.hpp>
 #include <servo.hpp>
 #include <turret.hpp>
@@ -29,10 +28,10 @@ void main_function(void){
 	SERVO::init();
 	INTERRUPT::init();
 	TURRET::init();
+	DC::swivel_init();
 
 
 	/* 無限迴圈 */
-	while(1){
-	}
+	while(1){}
 	return;
 }
