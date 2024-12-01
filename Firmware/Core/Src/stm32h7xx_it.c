@@ -217,7 +217,6 @@ void RCC_IRQHandler(void)
   /* USER CODE END RCC_IRQn 1 */
 }
 
-
 /**
   * @brief This function handles ADC1 and ADC2 global interrupts.
   */

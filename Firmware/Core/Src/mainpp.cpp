@@ -25,10 +25,11 @@ void main_function(void){
 	DC_LauncherR2.init();
 	Remote.init();
 
+//	DC::swivel_init();
 	SERVO::init();
 	INTERRUPT::init();
 	TURRET::init();
-	DC::swivel_init();
+
 
 
 	/* 無限迴圈 */

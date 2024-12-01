@@ -26,7 +26,7 @@ void SERVO::init(void){
 	HAL_TIM_PWM_Start(ServoElevatorR._TIMx, ServoElevatorR._channel);
 	HAL_TIM_PWM_Start(ServoElevatorL._TIMx, ServoElevatorL._channel);
 
-	ServoTriggerL.UART_send_pos(950, 200, true);
+	ServoTriggerL.UART_send_pos(2120, 200, true);
 	ServoTriggerR.UART_send_pos(950, 200, true);
 }
 
@@ -93,7 +93,7 @@ void SERVO::UART_send_pos(uint16_t position, uint16_t Time, bool real_pos) {
 	UART_send(Time % 256);          //Servo Time_L
 	UART_send(this->_checksum_calc);     //data length (one servo with time and speed)
 
-	if(real_pos) _current_goal_pos = position;
+	if(real_pos) this->_current_goal_pos = position;
 	return;
 }
 

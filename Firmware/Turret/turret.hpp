@@ -15,7 +15,7 @@ public:
   void operate_with_default_mode(uint8_t device, uint8_t mode);
 	void update_timer(void);
   void shoot_and_reload(uint8_t device, bool trigger_once);
-  void fine_tune(uint8_t device, float swivel_duty, uint32_t elevation_angle);
+  void fine_tune(uint8_t device, float swivel_duty, float elevation_angle);
 
 private:
   int _current_mode_left = 0;
@@ -30,10 +30,31 @@ private:
   void _execute_shoot_and_reload_R(void);
 
 	// fine_tune() 變數
-	uint32_t _fine_tune_ms = 0;
+	uint32_t _fine_tune_ms_L = 0;
+	uint32_t _fine_tune_ms_R = 0;
+	void tune_default_mode_elevator_deg(uint8_t device, uint32_t step);
 
 	// init() 變數
 	static uint32_t _init_ms;
+
+	// default mode 參數
+	uint8_t _CURRENT_LAUNCH_MODE_L = 0;
+	uint8_t _CURRENT_LAUNCH_MODE_R = 0;
+
+	uint32_t _LEFT_TOP_ELEVATOR_L = 50;
+	uint32_t _RIGHT_TOP_ELEVATOR_L = 50;
+	uint32_t _LEFT_MIDDLE_ELEVATOR_L = 50;
+	uint32_t _RIGHT_MIDDLE_ELEVATOR_L = 50;
+	uint32_t _LEFT_BOTTOM_ELEVATOR_L = 50;
+	uint32_t _RIGHT_BOTTOM_ELEVATOR_L = 50;
+
+	uint32_t _LEFT_TOP_ELEVATOR_R = 50;
+	uint32_t _RIGHT_TOP_ELEVATOR_R = 50;
+	uint32_t _LEFT_MIDDLE_ELEVATOR_R = 50;
+	uint32_t _RIGHT_MIDDLE_ELEVATOR_R = 50;
+	uint32_t _LEFT_BOTTOM_ELEVATOR_R = 50;
+	uint32_t _RIGHT_BOTTOM_ELEVATOR_R = 50;
+
 
 	// JOYSTICK 搖桿狀態
 	enum JOYSTICK{

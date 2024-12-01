@@ -38,6 +38,7 @@ public:
 	  GPIO_TypeDef* breakPort, uint16_t breakPin)
     :_pwmTimer(pwmTimer), _pwmChannel(pwmChannel),  _dirPort(dirPort), _dirPin(dirPin),
 	    _breakPort(breakPort), _breakPin(breakPin){
+    _duty=100;
   }
 
 

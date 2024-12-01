@@ -18,11 +18,12 @@ public:
 
 /* TYPE 1 SERVO */
 	SERVO(TIM_HandleTypeDef* TIMx, uint32_t channel):
-		_TIMx(TIMx), _channel(channel){};
+		_TIMx(TIMx), _channel(channel){
+		_goal_deg=50;
+	};
 
 	void open_loop_step(void);
 	void set_goal_deg(uint32_t goal_deg){_goal_deg = goal_deg;};
-	void add_goal_deg(uint32_t goal_deg){_goal_deg += goal_deg;};
 
 
 /* TYPE 2 SERVO */

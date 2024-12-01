@@ -66,8 +66,8 @@ void DC::init(void){
  */
 void DC::swivel_init(void){
   /* 啟動 ADC x DMA*/
-  HAL_ADC_Start_DMA(&hadc1, _swivel_adc_L, 1);
-  HAL_ADC_Start_DMA(&hadc2, _swivel_adc_R, 1);
+  HAL_ADC_Start_DMA(&hadc1, _swivel_adc_R, 1);
+  HAL_ADC_Start_DMA(&hadc2, _swivel_adc_L, 1);
   return;
 }
 

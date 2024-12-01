@@ -47,13 +47,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 		DC_LauncherR1.open_loop_pwm_output();
 		DC_LauncherR2.open_loop_pwm_output();
 
-		DC_SwivelL.close_loop_adc_pwm_output(0);
-		DC_SwivelR.close_loop_adc_pwm_output(1);
+//		DC_SwivelL.close_loop_adc_pwm_output(0);
+//		DC_SwivelR.close_loop_adc_pwm_output(1);
+		DC_SwivelL.open_loop_pwm_output();
+		DC_SwivelR.open_loop_pwm_output();
 
 		/* Turret：更新發射填彈的外部時鐘計算 */
 		Turret.update_timer();
-		ServoTriggerR.tremble();
 		ServoTriggerL.tremble();
+		ServoTriggerR.tremble();
 
 	}
 
