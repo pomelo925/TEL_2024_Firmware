@@ -31,7 +31,9 @@ public:
 		_huart(huart), _id(id){
 	};
 
-	void UART_send_pos(uint16_t position, uint16_t Time, bool real_pos);
+	void UART_send_pos(uint16_t position, uint16_t Time);
+	void UART_send_pos_tremble(uint16_t position, uint16_t Time);
+	void set_is_moving(bool is_moving){this->is_moving = is_moving;};
 	void tremble(void);
 
 
@@ -57,6 +59,11 @@ private:
 	uint16_t _current_goal_pos = 0;
 
 	void UART_send(uint8_t u8_data);
+
+	// trenble() 變數
+	uint32_t last_tremble_ms = 0;
+	bool is_moving = false;
+	const int WAIT_MOVING_MS = 3000;
 };
 
 extern SERVO ServoElevatorR, ServoElevatorL;

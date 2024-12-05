@@ -26,8 +26,11 @@ void SERVO::init(void){
 	HAL_TIM_PWM_Start(ServoElevatorR._TIMx, ServoElevatorR._channel);
 	HAL_TIM_PWM_Start(ServoElevatorL._TIMx, ServoElevatorL._channel);
 
-	ServoTriggerL.UART_send_pos(2120, 200, true);
-	ServoTriggerR.UART_send_pos(950, 200, true);
+	ServoTriggerL.UART_send_pos(2120, 200);
+	ServoTriggerR.UART_send_pos(950, 200);
+
+	ServoElevatorL.set_goal_deg(98);
+	ServoElevatorR.set_goal_deg(98);
 }
 
 
@@ -82,7 +85,7 @@ void SERVO::UART_send(uint8_t u8_data) {
  * @param Position 位置
  * @param Time 時間
  */
-void SERVO::UART_send_pos(uint16_t position, uint16_t Time, bool real_pos) {
+void SERVO::UART_send_pos(uint16_t position, uint16_t Time) {
 	this->_checksum_calc = 0;
 	UART_send(0x80 + _id);    //header mark & broadcast ID
 	UART_send(0x83);              //header mark & command code
@@ -93,9 +96,32 @@ void SERVO::UART_send_pos(uint16_t position, uint16_t Time, bool real_pos) {
 	UART_send(Time % 256);          //Servo Time_L
 	UART_send(this->_checksum_calc);     //data length (one servo with time and speed)
 
-	if(real_pos) this->_current_goal_pos = position;
+	this->is_moving = true;
+	this->_current_goal_pos = position;
 	return;
 }
+
+
+/**
+ * @brief 透過 UART 通訊，傳送位置與時間。
+ * 
+ * @param Position 位置
+ * @param Time 時間
+ */
+void SERVO::UART_send_pos_tremble(uint16_t position, uint16_t Time) {
+	this->_checksum_calc = 0;
+	UART_send(0x80 + _id);    //header mark & broadcast ID
+	UART_send(0x83);              //header mark & command code
+	UART_send(0x05);              //total data length
+	UART_send((position / 256) & 0x7F);  //Servo Pos_H
+	UART_send(position % 256);           //Servo Pos_L
+	UART_send((Time / 256) & 0x7F); //Servo Time_H
+	UART_send(Time % 256);          //Servo Time_L
+	UART_send(this->_checksum_calc);     //data length (one servo with time and speed)
+
+	return;
+}
+
 
 
 /**
@@ -103,14 +129,18 @@ void SERVO::UART_send_pos(uint16_t position, uint16_t Time, bool real_pos) {
  */
 void SERVO::tremble(void){
 	// 週期 200 ms
-	static uint32_t last_ms = 0;
-	if(HAL_GetTick() - last_ms < 200) return;
-	last_ms = HAL_GetTick();
+	const uint8_t TREMBLE_PERIOD_MS = 200;
+	if(HAL_GetTick() - this->last_tremble_ms < TREMBLE_PERIOD_MS) return;
+
+	// 先檢查是否在移動，超過 3 秒才 tremble
+	if(this->is_moving && HAL_GetTick() - this->last_tremble_ms < this->WAIT_MOVING_MS) return;
+	this->is_moving = false;
+	this->last_tremble_ms = HAL_GetTick();
 
 	/* 顫抖 */
 	// 產生 -5 ~ 5 的隨機數
-	int16_t pos = rand() % 11 -5;
-	UART_send_pos(_current_goal_pos + pos, 1, false);
+	const int16_t pos = rand() % 11 -5;
+	SERVO::UART_send_pos_tremble(this->_current_goal_pos + pos, 1);
 
 	return;
 }
