@@ -53,8 +53,9 @@ void REMOTE::mode_execute(void){
         case 2: {
             const bool DEBUG_MODE = true;
 
-            if(DEBUG_MODE){
+            if(DEBUG_MODE) {
             	Turret.operate_with_debug_mode();
+            	// 開頭：左，結束：左
             	Turret.fine_tune_swivel_elevation(_LEFT, REMOTE::joystick_mapping(this->ppmHigh[0], -100.f, 100.f), REMOTE::joystick_mapping(this->ppmHigh[1], -100.f, 100.f));
             	Turret.fine_tune_swivel_elevation(_RIGHT, REMOTE::joystick_mapping(this->ppmHigh[2], -100.f, 100.f), REMOTE::joystick_mapping(this->ppmHigh[3], -100.f, 100.f));
             }
@@ -143,6 +144,12 @@ void REMOTE::mode_execute(void){
         // swa = down, swd = up => 砲台精控模式，搖桿 swa ~ swd 選模式
         case 3:{
         	this->_under_case2 = false;
+//            const bool DEBUG_MODE = true;
+//
+//            if(DEBUG_MODE){
+//            	Turret.fine_tune_swivel_elevation(_LEFT, REMOTE::joystick_mapping(this->ppmHigh[0], -100.f, 100.f), REMOTE::joystick_mapping(this->ppmHigh[1], -100.f, 100.f));
+//            	Turret.fine_tune_swivel_elevation(_RIGHT, REMOTE::joystick_mapping(this->ppmHigh[2], -100.f, 100.f), REMOTE::joystick_mapping(this->ppmHigh[3], -100.f, 100.f));
+//            }
 
             break;
         }
@@ -150,11 +157,9 @@ void REMOTE::mode_execute(void){
         // swa = down, swd = down => 微調砲台 Launcher 轉速
         case 4: {
         	this->_under_case2 = false;
-
-            // 開頭：左，結束：左
         	Turret.fine_tune_launcher_stepper(_LEFT, REMOTE::joystick_mapping(this->ppmHigh[1], -100.f, 100.f), REMOTE::joystick_mapping(this->ppmHigh[0], -100.f, 100.f));
         	Turret.fine_tune_launcher_stepper(_RIGHT, REMOTE::joystick_mapping(this->ppmHigh[3], -100.f, 100.f), REMOTE::joystick_mapping(this->ppmHigh[2], -100.f, 100.f));
-            
+
             break;
         }
 

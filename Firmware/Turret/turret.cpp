@@ -22,19 +22,19 @@ uint32_t TURRET::_init_ms = 0;
  */
 void TURRET::init(void){
     Stepper_R.set_goal_pos(500);
-    Stepper_L.set_goal_pos(1000);
-    while(TURRET::_init_ms < 2000){};  // 等待 2 秒
+    Stepper_L.set_goal_pos(875);
+    while(TURRET::_init_ms < 1000){};  // 等待 1 秒
 
     ServoTriggerR.UART_send_pos(1150, 100);
     ServoTriggerL.UART_send_pos(1900, 100);
-    while(TURRET::_init_ms < 5000){};  // 等待 3 秒
+    while(TURRET::_init_ms < 500){};  // 等待 1 秒
 
     Stepper_R.set_goal_pos(-13000);
-    Stepper_L.set_goal_pos(-26000);
+    Stepper_L.set_goal_pos(-22750);
     while(TURRET::_init_ms < 13000){};  // 等待 8 秒
 
     Stepper_R.set_goal_pos(6000);
-    Stepper_L.set_goal_pos(12000);
+    Stepper_L.set_goal_pos(10500);
     return;
 }
 
@@ -63,7 +63,7 @@ void TURRET::operate_with_debug_mode(void){
  * @param mode 不同目標點的模式
  */
 void TURRET::operate_with_default_mode(uint8_t device, uint8_t mode){
-	const uint8_t max_duty = 50;
+	const uint8_t max_duty = 10;
 
     // LEFT
     if(device == _LEFT){
@@ -177,6 +177,7 @@ void TURRET::operate_with_default_mode(uint8_t device, uint8_t mode){
 void TURRET::_execute_shoot_and_reload_L(void){
     switch (this->_step_L){
     case 0:
+    	this->_shoot_and_reload_count_L++;
         ServoTriggerL.UART_send_pos(1900, 10);
         this->_step_L = 1;
         this->_ms_L = 0;
@@ -209,7 +210,9 @@ void TURRET::_execute_shoot_and_reload_L(void){
     
     case 4:
         if (this->_ms_L >= 3200) { // 等待 3.2 秒
-            Stepper_L.set_goal_pos(10000);
+        	// 第九次發射，步進馬達退後更多
+        	if (this->_shoot_and_reload_count_L == 8) Stepper_L.set_goal_pos(10500);
+        	else Stepper_L.set_goal_pos(8750);
             this->_step_L = 5;
             this->_ms_L = 0;
         }
@@ -241,14 +244,11 @@ void TURRET::_execute_shoot_and_reload_L(void){
         
     case 8:
         // 第九次發射，步進馬達不再往前
-        if (this->_shoot_and_reload_count_L == 8) break;
-
         if (this->_ms_L >= 3000) { // 等待 3 秒
-            Stepper_L.set_goal_pos(-10000);
+        	if (this->_shoot_and_reload_count_L != 9) Stepper_L.set_goal_pos(-8750);
             this->_step_L = 0;
             this->_ms_L = 0;
             this->_work_unit_done_L = true;
-            this->_shoot_and_reload_count_L++;
         }
         break;
     
@@ -266,6 +266,7 @@ void TURRET::_execute_shoot_and_reload_L(void){
 void TURRET::_execute_shoot_and_reload_R(void){
     switch (this->_step_R){
     case 0:
+    	this->_shoot_and_reload_count_R++;
         ServoTriggerR.UART_send_pos(1150, 10);
         this->_step_R = 1;
         this->_ms_R = 0;
@@ -298,7 +299,9 @@ void TURRET::_execute_shoot_and_reload_R(void){
     
     case 4:
         if (this->_ms_R >= 1800) { // 等待 1.8 秒
-            Stepper_R.set_goal_pos(5000);
+        	// 第九次發射，步進馬達退後更多
+        	if (this->_shoot_and_reload_count_R == 8) Stepper_R.set_goal_pos(6000);
+        	else Stepper_R.set_goal_pos(5000);
             this->_step_R = 5;
             this->_ms_R = 0;
         }
@@ -330,14 +333,11 @@ void TURRET::_execute_shoot_and_reload_R(void){
 
     case 8:
         // 第九次發射，步進馬達不再往前
-        if (this->_shoot_and_reload_count_R == 8) break;
-
         if (this->_ms_R >= 3000) { // 等待 3 秒
-            Stepper_R.set_goal_pos(-5000);
+        	if (this->_shoot_and_reload_count_R != 9) Stepper_R.set_goal_pos(-5000);
             this->_step_R = 0;
             this->_ms_R = 0;
             this->_work_unit_done_R = true;
-            this->_shoot_and_reload_count_R++;
         }
         break;
     
@@ -414,7 +414,7 @@ void TURRET::fine_tune_swivel_elevation(uint8_t device, float swivel_duty, float
         if(abs(swivel_duty) < trigger_duty) DC_SwivelL.set_duty(100);
 
         else if(swivel_duty > trigger_duty) DC_SwivelL.set_duty(-swivel_working_duty_L);
-        else DC_SwivelL.set_duty(swivel_working_duty_L);
+        else if(swivel_duty < -trigger_duty) DC_SwivelL.set_duty(swivel_working_duty_L);
 
         /** Elevation **/ 
         // 每秒執行一次
@@ -432,7 +432,7 @@ void TURRET::fine_tune_swivel_elevation(uint8_t device, float swivel_duty, float
         if(abs(swivel_duty) < trigger_duty) DC_SwivelR.set_duty(100);
 
         else if(swivel_duty > trigger_duty) DC_SwivelR.set_duty(swivel_working_duty_R);
-        else DC_SwivelR.set_duty(-swivel_working_duty_R);
+        else if(swivel_duty < -trigger_duty) DC_SwivelR.set_duty(-swivel_working_duty_R);
 
         /** Elevation **/ 
         // 每秒執行一次
@@ -455,7 +455,8 @@ void TURRET::fine_tune_swivel_elevation(uint8_t device, float swivel_duty, float
  * @param stepper_angle 步進馬達角度（°）
  */
 void TURRET::fine_tune_launcher_stepper(uint8_t device, float launcher_duty, float stepper_angle){
-    const float trigger_duty = 10.f;  // 觸發動作的占空比
+    const float stepper_trigger_duty = 80.f;  // 觸發動作的占空比
+    const float launcher_trigger_duty = 80.f;
 
     const uint32_t launcher_unit_step = 5;  // 發射器每次調整的轉速
 
@@ -463,17 +464,17 @@ void TURRET::fine_tune_launcher_stepper(uint8_t device, float launcher_duty, flo
     const int step_unit_R = 800;
 
 
-    if(abs(launcher_duty) < trigger_duty && abs(stepper_angle) < trigger_duty) return;
+    if(abs(launcher_duty) < launcher_trigger_duty && abs(stepper_angle) < stepper_trigger_duty) return;
 
     if(device == _LEFT){
         // 每秒執行一次
         static uint32_t fine_tune_launcher_stepper_ms_last_L = 0;
-        if(this->_fine_tune_launcher_stepper_ms_L - fine_tune_launcher_stepper_ms_last_L < 200)  return;
+        if(this->_fine_tune_launcher_stepper_ms_L - fine_tune_launcher_stepper_ms_last_L < 500)  return;
         fine_tune_launcher_stepper_ms_last_L = this->_fine_tune_launcher_stepper_ms_L;
 
         /** DC Launcher **/
-        if(launcher_duty > trigger_duty) this->_DC_LAUNCHER_DUTY_L += launcher_unit_step;
-        else this->_DC_LAUNCHER_DUTY_L -= launcher_unit_step;
+        if(launcher_duty > launcher_trigger_duty) this->_DC_LAUNCHER_DUTY_L += launcher_unit_step;
+        if(launcher_duty < -launcher_trigger_duty) this->_DC_LAUNCHER_DUTY_L -= launcher_unit_step;
 
         if(this->_DC_LAUNCHER_DUTY_L < 0) this->_DC_LAUNCHER_DUTY_L = 0;
         if(this->_DC_LAUNCHER_DUTY_L > 100) this->_DC_LAUNCHER_DUTY_L = 100;
@@ -482,18 +483,18 @@ void TURRET::fine_tune_launcher_stepper(uint8_t device, float launcher_duty, flo
         DC_LauncherL2.set_duty(-this->_DC_LAUNCHER_DUTY_L);
 
         /** Stepper **/
-        if(stepper_angle > trigger_duty) Stepper_L.set_goal_pos(step_unit_L);
-        if(stepper_angle < -trigger_duty) Stepper_L.set_goal_pos(-step_unit_L);
+        if(stepper_angle > stepper_trigger_duty) Stepper_L.set_goal_pos(step_unit_L);
+        if(stepper_angle < -stepper_trigger_duty) Stepper_L.set_goal_pos(-step_unit_L);
     }
     else if(device == _RIGHT){
         // 每秒執行一次
         static uint32_t fine_tune_launcher_stepper_ms_last_R = 0;
-        if(this->_fine_tune_launcher_stepper_ms_R - fine_tune_launcher_stepper_ms_last_R < 200)  return;
+        if(this->_fine_tune_launcher_stepper_ms_R - fine_tune_launcher_stepper_ms_last_R < 500)  return;
         fine_tune_launcher_stepper_ms_last_R = this->_fine_tune_launcher_stepper_ms_R;
 
         /** DC Launcher **/
-        if(launcher_duty > trigger_duty) this->_DC_LAUNCHER_DUTY_R += launcher_unit_step;
-        else this->_DC_LAUNCHER_DUTY_R -= launcher_unit_step;
+        if(launcher_duty > launcher_trigger_duty) this->_DC_LAUNCHER_DUTY_R += launcher_unit_step;
+        if(launcher_duty < -launcher_trigger_duty) this->_DC_LAUNCHER_DUTY_R -= launcher_unit_step;
 
         if(this->_DC_LAUNCHER_DUTY_R < 0) this->_DC_LAUNCHER_DUTY_R = 0;
         if(this->_DC_LAUNCHER_DUTY_R > 100) this->_DC_LAUNCHER_DUTY_R = 100;
@@ -502,8 +503,8 @@ void TURRET::fine_tune_launcher_stepper(uint8_t device, float launcher_duty, flo
         DC_LauncherR2.set_duty(this->_DC_LAUNCHER_DUTY_R);
 
         /** Stepper **/
-        if(stepper_angle > trigger_duty) Stepper_R.set_goal_pos(-step_unit_R);
-        if(stepper_angle < -trigger_duty) Stepper_R.set_goal_pos(step_unit_R);
+        if(stepper_angle > stepper_trigger_duty) Stepper_R.set_goal_pos(-step_unit_R);
+        if(stepper_angle < -stepper_trigger_duty) Stepper_R.set_goal_pos(step_unit_R);
     }
     return;
 }
